@@ -450,6 +450,14 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--tx);font-
 
 /* Locked app overlay */
 .app-locked{pointer-events:none;filter:blur(3px) brightness(.4);user-select:none}
+
+/* Session settings row */
+.session-pill{font-size:11px;font-family:var(--FM);padding:4px 12px;border-radius:20px;cursor:pointer;border:1px solid var(--brd2);color:var(--tx3);background:var(--bg2);transition:all var(--T);margin-right:5px}
+.session-pill:hover{color:var(--tx2);border-color:var(--brd)}
+.session-pill.on{background:rgba(0,229,255,.1);border-color:rgba(0,229,255,.28);color:var(--cy)}
+/* Notif badge on login */
+.notif-banner{background:rgba(0,229,255,.06);border:1px solid rgba(0,229,255,.18);border-radius:var(--rs);padding:10px 14px;font-size:12.5px;color:var(--tx2);display:flex;align-items:center;gap:9px;margin-bottom:14px}
+.notif-banner-dot{width:6px;height:6px;border-radius:50%;background:var(--cy);box-shadow:0 0 6px var(--cy);flex-shrink:0}
 </style>
 </head>
 <body>
@@ -939,6 +947,7 @@ async function sendMsg(){
     const{clean,acts}=parseActs(raw);
     const log=[];
     acts.forEach(a=>execAct(a,log));
+    autoSave();
     const tp=log.length>0?'act':/você quis dizer|poderia esclarecer/i.test(clean)?'clr':'n';
     pushMsg({role:'nexus',tp,text:clean,log:log.length?log:undefined});
   }catch{pushMsg({role:'nexus',tp:'n',text:'Falha de conexão. Verifique sua rede e tente novamente.'});}
@@ -1112,9 +1121,9 @@ function renderRoutine(el){
     </div>
   </div>`;
 }
-function togHabit(id){S.habits=S.habits.map(h=>h.id===id?{...h,done:!h.done,streak:h.done?h.streak-1:h.streak+1}:h);renderHUD();refreshPanel();}
-function togTask(id){S.tasks=S.tasks.map(t=>t.id===id?{...t,done:!t.done}:t);renderHUD();refreshPanel();}
-function addQT(){const el=document.getElementById('qt-inp');if(!el||!el.value.trim())return;S.tasks.push({id:Date.now(),title:el.value.trim(),done:false,priority:'média',date:todayStr()});toast('Tarefa adicionada ✔');el.value='';renderHUD();refreshPanel();}
+function togHabit(id){S.habits=S.habits.map(h=>h.id===id?{...h,done:!h.done,streak:h.done?h.streak-1:h.streak+1}:h);renderHUD();refreshPanel();autoSave();}
+function togTask(id){S.tasks=S.tasks.map(t=>t.id===id?{...t,done:!t.done}:t);renderHUD();refreshPanel();autoSave();}
+function addQT(){const el=document.getElementById('qt-inp');if(!el||!el.value.trim())return;S.tasks.push({id:Date.now(),title:el.value.trim(),done:false,priority:'média',date:todayStr()});toast('Tarefa adicionada ✔');el.value='';renderHUD();refreshPanel();autoSave();}
 function jumpEvt(date){const dt=new Date(date);S.calMonth=dt.getMonth();S.calYear=dt.getFullYear();S.selDay={y:dt.getFullYear(),m:dt.getMonth(),d:parseInt(date.split('-')[2])};goPanel('calendar');}
 
 // ═══════════════════════════════════════════════
@@ -1185,6 +1194,7 @@ function renderSettings(el){
       <div class="slbl">Privacidade e Segurança</div>
       <div class="card">
         <div class="srow" style="padding-top:8px"><div class="sr-ic" style="background:rgba(255,82,82,.08)">🔒</div><div class="sr-inf"><div class="sr-t">Modo privado</div><div class="sr-s">Oculta dados financeiros</div></div><div class="tgl ${S.privacy.privateMode?'on':''}" onclick="togglePM()"><div class="tgl-th"></div></div></div>
+        <div class="srow"><div class="sr-ic" style="background:rgba(0,229,255,.08)">⏱</div><div class="sr-inf"><div class="sr-t">Expiração da sessão</div><div class="sr-s">${SESSION_OPTIONS.find(o=>o.value===getCurrentExpiry())?.label||'Nunca'}</div></div><div style="display:flex;flex-wrap:wrap;gap:4px;margin-left:8px">${SESSION_OPTIONS.map(o=>`<span class="session-pill ${getCurrentExpiry()===o.value?'on':''}" onclick="setSessionExpiry(${o.value})">${o.label}</span>`).join('')}</div></div>
         <div class="srow"><div class="sr-ic" style="background:rgba(124,131,255,.08)">🔐</div><div class="sr-inf"><div class="sr-t">PIN de acesso</div><div class="sr-s">${S.privacy.pinEnabled?'Ativo':'Desativado — ative se quiser'}</div></div><div class="tgl ${S.privacy.pinEnabled?'on':''}" onclick="togPIN()"><div class="tgl-th"></div></div></div>
         <div class="srow" style="padding-bottom:8px"><div class="sr-ic" style="background:rgba(0,229,255,.08)">📤</div><div class="sr-inf"><div class="sr-t">Exportar dados</div><div class="sr-s">Backup completo em JSON</div></div><button class="btn sm" onclick="exportData()">Exportar</button></div>
       </div>
@@ -1293,9 +1303,9 @@ function toggleHudCard(k){
 }
 function pickEmoji(el,e){document.querySelectorAll('#emoji-grid span').forEach(s=>s.style.background='transparent');el.style.background='rgba(0,229,255,.15)';document.getElementById('h-e').value=e;}
 function setTT(t){_txnType=t;document.getElementById('te-btn').className='btn full'+(t==='expense'?'':' ghost');document.getElementById('ti-btn').className='btn full'+(t==='income'?'':' ghost');}
-function submitGoal(){const t=document.getElementById('g-t').value.trim();if(!t)return;S.goals.push({id:Date.now(),title:t,deadline:document.getElementById('g-d').value,category:document.getElementById('g-c').value,sub:[],ci:[]});toast('Meta criada ✔');closeModal();refreshPanel();renderHUD();}
-function submitEvent(){const t=document.getElementById('e-t').value.trim();if(!t)return;S.events.push({id:Date.now(),title:t,date:document.getElementById('e-d').value,time:document.getElementById('e-h').value,category:document.getElementById('e-c').value,recurrence:document.getElementById('e-r').value});toast('Evento agendado ✔');closeModal();renderHUD();refreshPanel();}
-function submitTxn(){const d=document.getElementById('t-d').value.trim(),v=document.getElementById('t-v').value;if(!d||!v)return;S.txns.push({id:Date.now(),desc:d,amount:parseFloat(v),cat:document.getElementById('t-c').value,type:_txnType,date:new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})});toast('Lançamento registrado ✔');closeModal();renderHUD();refreshPanel();}
+function submitGoal(){const t=document.getElementById('g-t').value.trim();if(!t)return;S.goals.push({id:Date.now(),title:t,deadline:document.getElementById('g-d').value,category:document.getElementById('g-c').value,sub:[],ci:[]});toast('Meta criada ✔');closeModal();refreshPanel();renderHUD();autoSave();}
+function submitEvent(){const t=document.getElementById('e-t').value.trim();if(!t)return;S.events.push({id:Date.now(),title:t,date:document.getElementById('e-d').value,time:document.getElementById('e-h').value,category:document.getElementById('e-c').value,recurrence:document.getElementById('e-r').value});toast('Evento agendado ✔');closeModal();renderHUD();refreshPanel();autoSave();}
+function submitTxn(){const d=document.getElementById('t-d').value.trim(),v=document.getElementById('t-v').value;if(!d||!v)return;S.txns.push({id:Date.now(),desc:d,amount:parseFloat(v),cat:document.getElementById('t-c').value,type:_txnType,date:new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})});toast('Lançamento registrado ✔');closeModal();renderHUD();refreshPanel();autoSave();}
 function submitHabit(){const n=document.getElementById('h-n').value.trim();if(!n)return;S.habits.push({id:Date.now(),name:n,emoji:document.getElementById('h-e').value,streak:0,done:false});toast('Hábito criado ✔');closeModal();renderHUD();}
 function saveProfile(){S.profile={...S.profile,name:document.getElementById('p-n').value||S.profile.name,profession:document.getElementById('p-p').value,lifeGoalShort:document.getElementById('p-gs').value,lifeGoalMid:document.getElementById('p-gm').value,lifeGoalLong:document.getElementById('p-gl').value,language:document.getElementById('p-l').value,timezone:document.getElementById('p-tz').value};toast('Perfil atualizado ✔');closeModal();refreshPanel();}
 function savePin(){const p=document.getElementById('pin-new').value;if(p.length!==4){toast('PIN deve ter 4 dígitos');return;}S.privacy={...S.privacy,pinEnabled:true,pin:p};toast('PIN ativado 🔐');closeModal();refreshPanel();}
@@ -1376,8 +1386,40 @@ function init(){
 // ═══════════════════════════════════════════════
 // LOGIN SYSTEM
 // ═══════════════════════════════════════════════
-const LS_USERS='nexus_users', LS_SESSION='nexus_session';
-let _authTab='login', _remember=false, _currentUser=null;
+const LS_USERS='nexus_users', LS_SESSION='nexus_session', LS_DATA_PFX='nexus_data_';
+let _authTab='login', _remember=false, _currentUser=null, _saveTimer=null;
+
+// ── Per-user data persistence ─────────────────
+function saveUserData(){
+  if(!_currentUser||_currentUser.isGuest) return;
+  const data={tasks:S.tasks,habits:S.habits,events:S.events,goals:S.goals,txns:S.txns,dailyNote:S.dailyNote,profile:S.profile,savedAt:Date.now()};
+  try{ localStorage.setItem(LS_DATA_PFX+_currentUser.id,JSON.stringify(data)); }catch(e){}
+}
+function applyUserData(uid){
+  try{
+    const raw=localStorage.getItem(LS_DATA_PFX+uid);
+    if(!raw) return false;
+    const d=JSON.parse(raw);
+    if(d.tasks)   S.tasks=d.tasks;
+    if(d.habits)  S.habits=d.habits;
+    if(d.events)  S.events=d.events;
+    if(d.goals)   S.goals=d.goals;
+    if(d.txns)    S.txns=d.txns;
+    if(d.dailyNote!==undefined) S.dailyNote=d.dailyNote;
+    if(d.profile) S.profile={...S.profile,...d.profile};
+    return true;
+  }catch{ return false; }
+}
+function autoSave(){
+  clearTimeout(_saveTimer);
+  _saveTimer=setTimeout(saveUserData,500);
+}
+// ── Session validation ───────────────────────
+function isSessionValid(session){
+  if(!session) return false;
+  if(!session.expiresAt) return true;
+  return Date.now()<session.expiresAt;
+}
 function getUsers(){try{return JSON.parse(localStorage.getItem(LS_USERS)||'[]');}catch{return [];}}
 function saveUsers(u){localStorage.setItem(LS_USERS,JSON.stringify(u));}
 function getSession(){try{return JSON.parse(localStorage.getItem(LS_SESSION)||'null');}catch{return null;}}
@@ -1404,9 +1446,13 @@ function switchTab(tab){
   if(tab==='login'){
     document.getElementById('login-sub').textContent='Acesse seu agente pessoal';
     sb.textContent='Entrar';
-    document.getElementById('form-fields').innerHTML=`
+    const savedUsers=getUsers();
+    const accountsHtml=savedUsers.length>0?`<div style="margin-bottom:14px"><div style="font-size:10px;font-family:var(--FM);color:var(--tx3);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px">Contas salvas</div>${savedUsers.map(u=>`<div onclick="quickLogin('${u.id}')" style="display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--bg2);border:1px solid var(--brd2);border-radius:var(--rs);margin-bottom:6px;cursor:pointer;transition:all var(--T)" onmouseover="this.style.borderColor='var(--brd)'" onmouseout="this.style.borderColor='var(--brd2)'"><div style="width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,rgba(0,229,255,.2),rgba(124,131,255,.15));border:1px solid rgba(0,229,255,.3);display:flex;align-items:center;justify-content:center;font-family:var(--FD);font-size:11px;font-weight:700;color:var(--cy)">${getInits(u.name)}</div><div style="flex:1;overflow:hidden"><div style="font-size:13.5px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${u.name}</div><div style="font-size:11px;color:var(--tx3);font-family:var(--FM)">${u.email}</div></div><span style="font-size:11px;color:var(--cy);font-family:var(--FM)">→</span></div>`).join('')}<div style="text-align:center;margin-bottom:14px"><button class="login-link" onclick="showManualLogin()">Entrar com outra conta</button></div></div>`:'';
+    document.getElementById('form-fields').innerHTML=accountsHtml+`<div id="manual-login-fields" style="${savedUsers.length>0?'display:none':''}">
       <div class="login-fg"><label class="login-fl">E-mail</label><input class="login-inp" id="f-email" type="email" name="email" autocomplete="email" placeholder="seu@email.com"></div>
-      <div class="login-fg"><label class="login-fl">Senha</label><input class="login-inp" id="f-pass" type="password" name="password" autocomplete="current-password" placeholder="••••••••"></div>`;
+      <div class="login-fg"><label class="login-fl">Senha</label><input class="login-inp" id="f-pass" type="password" name="password" autocomplete="current-password" placeholder="••••••••"></div></div>`;
+    if(savedUsers.length>0) document.getElementById('login-submit-btn').style.display='none';
+    else document.getElementById('login-submit-btn').style.display='block';
   } else if(tab==='register'){
     document.getElementById('login-sub').textContent='Crie sua conta no NEXUS';
     sb.textContent='Criar conta';
@@ -1477,34 +1523,73 @@ function handleAuth(){
   }
 }
 
-function doLogin(user,isNew){
+function doLogin(user, isNew, isAuto){
   _currentUser=user;
-  if(_remember) saveSession({userId:user.id,email:user.email,name:user.name});
-  S.profile.name=user.name;
+  // Always save session (persistent by default)
+  const sessionExpiry = user.sessionExpiry || null; // null = never
+  const expiresAt = sessionExpiry ? Date.now() + sessionExpiry : null;
+  saveSession({userId:user.id, email:user.email, name:user.name, loginTime:Date.now(), expiresAt});
+  // Load saved user data
+  const hadData = applyUserData(user.id);
+  S.profile.name = user.name;
+  // Show welcome screen (skip animation on auto-relogin)
   document.getElementById('login-backdrop').classList.add('hidden');
-  const ws=document.getElementById('welcome-screen');
-  ws.classList.remove('hidden');
-  document.getElementById('welcome-av').textContent=getInits(user.name);
-  document.getElementById('welcome-greeting').textContent=getGreeting();
-  document.getElementById('welcome-name').textContent=user.name;
-  document.getElementById('welcome-msg').textContent=getWelcomeMsg(user.name,isNew);
+  if(!isAuto){
+    const ws=document.getElementById('welcome-screen');
+    ws.classList.remove('hidden');
+    document.getElementById('welcome-av').textContent=getInits(user.name);
+    document.getElementById('welcome-greeting').textContent=getGreeting();
+    document.getElementById('welcome-name').textContent=user.name;
+    document.getElementById('welcome-msg').textContent=getWelcomeMsg(user.name,isNew);
+  }
+  const delay = isAuto ? 0 : 2200;
   setTimeout(()=>{
-    ws.classList.add('hidden');
+    const ws=document.getElementById('welcome-screen');
+    if(ws) ws.classList.add('hidden');
     document.getElementById('app').classList.remove('app-locked');
     updateHeaderUser();
     document.getElementById('st-pill').style.display='none';
     document.getElementById('user-menu').style.display='block';
-    renderHUD();computeAlerts();S.msgs=[];
+    renderHUD(); computeAlerts(); S.msgs=[];
     const tp=S.tasks.length?Math.round(tdone()/S.tasks.length*100):0;
     const hp=S.habits.length?Math.round(hdone()/S.habits.length*100):0;
-    const gr=getGreeting();const grLow=gr.charAt(0)+gr.slice(1).toLowerCase();
-    pushMsg({role:'nexus',tp:'n',
-      text:`Sistema ativo. ${grLow}, **${user.name}**. ${isNew?'Conta criada com sucesso! ':''}Sua rotina está pronta.`,
-      card:{title:'RELATÓRIO DO DIA',
-        stats:[{val:`${tdone()}/${S.tasks.length}`,lbl:'Tarefas',cls:'hi'},{val:`${hdone()}/${S.habits.length}`,lbl:'Hábitos',cls:'ok'},{val:fmt(bal()),lbl:'Saldo',cls:overLim()?'wn':'hi'},{val:`${S.events.length}`,lbl:'Eventos',cls:'hi'}],
-        rows:[{label:'Tarefas',pct:tp,cls:tp>60?'g':''},{label:'Hábitos',pct:hp,cls:hp>60?'g':''},{label:S.goals[0].title.slice(0,32)+'…',pct:pct(S.goals[0])},{label:'Meta economia',pct:Math.min(100,Math.round(Math.max(0,bal())/SAVINGS_GOAL*100)),cls:'g'}]}});
-    pushMsg({role:'nexus',tp:'n',text:'Digite **/** para ver os comandos ou converse comigo diretamente.'});
-  },2200);
+    const gr=getGreeting(); const grLow=gr.charAt(0)+gr.slice(1).toLowerCase();
+    if(isAuto){
+      // Quick relogin — short greeting only
+      pushMsg({role:'nexus',tp:'n',
+        text:`${grLow}, **${user.name}**. Bem-vindo de volta — sua rotina está pronta.`,
+        card:{title:'RESUMO DO DIA',
+          stats:[{val:`${tdone()}/${S.tasks.length}`,lbl:'Tarefas',cls:'hi'},{val:`${hdone()}/${S.habits.length}`,lbl:'Hábitos',cls:'ok'},{val:fmt(bal()),lbl:'Saldo',cls:overLim()?'wn':'hi'},{val:`${todEvts().length}`,lbl:'Hoje',cls:'hi'}],
+          rows:[{label:'Tarefas',pct:tp,cls:tp>60?'g':''},{label:'Hábitos',pct:hp,cls:hp>60?'g':''}]}});
+    } else {
+      pushMsg({role:'nexus',tp:'n',
+        text:`Sistema ativo. ${grLow}, **${user.name}**. ${isNew?'Conta criada com sucesso! ':''}${hadData?'Dados carregados.':'Sua rotina está pronta.'}`,
+        card:{title:'RELATÓRIO DO DIA',
+          stats:[{val:`${tdone()}/${S.tasks.length}`,lbl:'Tarefas',cls:'hi'},{val:`${hdone()}/${S.habits.length}`,lbl:'Hábitos',cls:'ok'},{val:fmt(bal()),lbl:'Saldo',cls:overLim()?'wn':'hi'},{val:`${S.events.length}`,lbl:'Eventos',cls:'hi'}],
+          rows:[{label:'Tarefas',pct:tp,cls:tp>60?'g':''},{label:'Hábitos',pct:hp,cls:hp>60?'g':''},{label:S.goals[0]?.title?.slice(0,32)+'…'||'Meta',pct:pct(S.goals[0]||{sub:[]})},{label:'Meta economia',pct:Math.min(100,Math.round(Math.max(0,bal())/SAVINGS_GOAL*100)),cls:'g'}]}});
+      pushMsg({role:'nexus',tp:'n',text:'Digite **/** para ver os comandos ou converse comigo diretamente.'});
+    }
+    // Request notification permission
+    requestNotifPermission();
+    // Schedule daily reminders
+    scheduleReminders();
+  }, delay);
+}
+
+function quickLogin(userId){
+  const users=getUsers(), user=users.find(u=>u.id==userId);
+  if(!user){toast('Conta não encontrada.');return;}
+  // Ask for password to confirm identity
+  const pass=prompt(`Senha de ${user.name}:`);
+  if(!pass) return;
+  if(user.pwd!==hashPwd(pass)){showErr('Senha incorreta.');return;}
+  doLogin(user, false, false);
+}
+
+function showManualLogin(){
+  const mf=document.getElementById('manual-login-fields');
+  if(mf) mf.style.display='block';
+  document.getElementById('login-submit-btn').style.display='block';
 }
 
 function enterGuest(){
@@ -1533,22 +1618,24 @@ document.addEventListener('click',e=>{
 function openUserSettings(){document.getElementById('user-dropdown').classList.remove('show');goPanel('settings');}
 function switchUser(){
   document.getElementById('user-dropdown').classList.remove('show');
-  _currentUser=null;clearSession();
+  saveUserData(); // persist before switching
+  _currentUser=null; clearSession();
   document.getElementById('app').classList.add('app-locked');
   document.getElementById('user-menu').style.display='none';
   document.getElementById('st-pill').style.display='flex';
   document.getElementById('login-backdrop').classList.remove('hidden');
-  S.msgs=[];switchTab('login');
+  S.msgs=[]; switchTab('login');
 }
 function logout(){
   document.getElementById('user-dropdown').classList.remove('show');
-  _currentUser=null;clearSession();
+  saveUserData(); // persist before logout
+  _currentUser=null; clearSession();
   S.profile.name='Astronauta';
   document.getElementById('app').classList.add('app-locked');
   document.getElementById('user-menu').style.display='none';
   document.getElementById('st-pill').style.display='flex';
   document.getElementById('login-backdrop').classList.remove('hidden');
-  S.msgs=[];switchTab('login');toast('Sessão encerrada.');
+  S.msgs=[]; switchTab('login'); toast('Sessão encerrada.');
 }
 
 // Guest mode intercept
@@ -1559,18 +1646,97 @@ window.sendMsg=async function(){
 };
 
 // ═══════════════════════════════════════════════
+// NOTIFICATIONS
+// ═══════════════════════════════════════════════
+function requestNotifPermission(){
+  if(!('Notification' in window)) return;
+  if(Notification.permission==='default'){
+    Notification.requestPermission().then(perm=>{
+      if(perm==='granted') toast('Notificações ativadas ✔');
+    });
+  }
+}
+function showNotif(title, body, icon='./icon-192.png'){
+  if(Notification.permission!=='granted') return;
+  if('serviceWorker' in navigator && navigator.serviceWorker.controller){
+    navigator.serviceWorker.ready.then(reg=>{
+      reg.showNotification(title,{body,icon,badge:'./icon-192.png',vibrate:[200,100,200]});
+    });
+  } else {
+    new Notification(title,{body,icon});
+  }
+}
+function scheduleReminders(){
+  if(!_currentUser||_currentUser.isGuest) return;
+  if(Notification.permission!=='granted') return;
+  // Check habits not done — notify after 30s if any pending
+  setTimeout(()=>{
+    const pending=S.habits.filter(h=>!h.done);
+    if(pending.length>0){
+      showNotif('NEXUS — Hábitos pendentes',`Você tem ${pending.length} hábito${pending.length>1?'s':''} para completar hoje: ${pending[0].name}${pending.length>1?` e mais ${pending.length-1}`:'.'}`);
+    }
+  }, 30000);
+  // Check overdue tasks — notify after 60s
+  setTimeout(()=>{
+    const overdue=S.tasks.filter(t=>!t.done&&t.date===todayStr()&&t.priority==='alta');
+    if(overdue.length>0){
+      showNotif('NEXUS — Tarefas urgentes',`${overdue.length} tarefa${overdue.length>1?'s':''} de alta prioridade pendente${overdue.length>1?'s':''} hoje.`);
+    }
+  }, 60000);
+}
+
+// ═══════════════════════════════════════════════
+// SESSION EXPIRY HELPERS
+// ═══════════════════════════════════════════════
+const SESSION_OPTIONS=[
+  {label:'Nunca',value:null},
+  {label:'7 dias',value:7*24*60*60*1000},
+  {label:'30 dias',value:30*24*60*60*1000},
+  {label:'90 dias',value:90*24*60*60*1000},
+];
+function setSessionExpiry(ms){
+  if(!_currentUser) return;
+  _currentUser.sessionExpiry = ms;
+  // Update saved session with new expiry
+  const session=getSession();
+  if(session){
+    session.expiresAt = ms ? Date.now()+ms : null;
+    saveSession(session);
+  }
+  // Update user record
+  const users=getUsers();
+  const idx=users.findIndex(u=>u.id===_currentUser.id);
+  if(idx>=0){ users[idx].sessionExpiry=ms; saveUsers(users); }
+  const opt=SESSION_OPTIONS.find(o=>o.value===ms);
+  toast(`Sessão: ${opt?opt.label:'personalizada'}`);
+  refreshPanel();
+}
+function getCurrentExpiry(){
+  if(!_currentUser) return null;
+  return _currentUser.sessionExpiry||null;
+}
+
+// ═══════════════════════════════════════════════
 // BOOTSTRAP
 // ═══════════════════════════════════════════════
 (function bootstrap(){
   document.getElementById('app').classList.add('app-locked');
   switchTab('login');
   const session=getSession();
-  if(session){
+  if(session && isSessionValid(session)){
     const users=getUsers();
     const user=users.find(u=>u.id===session.userId||u.email===session.email);
-    if(user){init();doLogin(user,false);return;}
+    if(user){ init(); doLogin(user,false,true); return; } // isAuto=true
+  } else if(session && !isSessionValid(session)){
+    clearSession(); // expired — clean up
   }
   init();
+  // Listen for app visibility changes (PWA reopen)
+  document.addEventListener('visibilitychange',()=>{
+    if(document.visibilityState==='visible'&&_currentUser&&!_currentUser.isGuest){
+      renderHUD(); computeAlerts();
+    }
+  });
 })();
 </script>
 </body>
