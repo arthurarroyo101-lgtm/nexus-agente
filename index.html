@@ -459,13 +459,6 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--tx);font-
 .notif-banner{background:rgba(0,229,255,.06);border:1px solid rgba(0,229,255,.18);border-radius:var(--rs);padding:10px 14px;font-size:12.5px;color:var(--tx2);display:flex;align-items:center;gap:9px;margin-bottom:14px}
 .notif-banner-dot{width:6px;height:6px;border-radius:50%;background:var(--cy);box-shadow:0 0 6px var(--cy);flex-shrink:0}
 
-/* Gist sync status */
-.gist-status{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-family:var(--FM);padding:3px 10px;border-radius:20px;flex-shrink:0}
-.gist-status.ok{background:rgba(0,230,118,.1);color:var(--gn);border:1px solid rgba(0,230,118,.22)}
-.gist-status.err{background:rgba(255,82,82,.1);color:var(--rd);border:1px solid rgba(255,82,82,.22)}
-.gist-status.pending{background:rgba(255,202,40,.1);color:var(--am);border:1px solid rgba(255,202,40,.22)}
-.gist-status.off{background:var(--bg3);color:var(--tx3);border:1px solid var(--brd2)}
-.sync-dot{width:5px;height:5px;border-radius:50%;background:currentColor;animation:blink 1.8s ease-in-out infinite}
 </style>
 </head>
 <body>
@@ -666,7 +659,6 @@ const S = {
     {id:4,desc:'Aluguel',amount:1200,cat:'Moradia',type:'expense',date:'10/03'},
   ],
   msgs:[],
-  gist:{token:'', gistId:'', status:'off', lastSync:null},
 };
 
 // ═══════════════════════════════════════════════
@@ -886,7 +878,8 @@ Metas: ${JSON.stringify(S.goals.map(g=>({t:g.title,prog:pct(g)+'%',dl:g.deadline
 Finanças: receita ${fmt(inc())} | gastos ${fmt(exp())} | saldo ${fmt(bal())}${overLim()?' ⚠':''}
 Hoje: ${todayStr()}`;
 }
-function buildSys(){
+async function buildSys(){
+  const memCtx = await memBuildContext();
   return `Você é o NEXUS — agente de IA pessoal space-tech. Responda SEMPRE em português brasileiro.
 Usuário: ${S.profile.name}${S.profile.profession?' ('+S.profile.profession+')':''}. Tom: ${S.profile.commStyle}.
 Use **negrito** para destaques. Seja completo sem exagerar.
@@ -904,9 +897,8 @@ AÇÕES (use SOMENTE se solicitado):
 <nexus_action>{"type":"add_transaction","payload":{"desc":"...","amount":"0","category":"Alimentação|Moradia|Saúde|Lazer|Assinaturas|Transporte|Outro","type":"income|expense"}}</nexus_action>
 <nexus_action>{"type":"add_event","payload":{"title":"...","date":"YYYY-MM-DD","time":"HH:MM","category":"trabalho|pessoal|saúde|outro","recurrence":"none|daily|weekly|monthly"}}</nexus_action>
 
-DADOS: ${buildCtx()}`;
+DADOS ATUAIS: ${buildCtx()}${memCtx}\`;
 }
-
 // ═══════════════════════════════════════════════
 // SLASH COMMANDS
 // ═══════════════════════════════════════════════
@@ -950,7 +942,7 @@ async function sendMsg(){
   const hist=S.msgs.slice(-16).map(m=>({role:m.role==='nexus'?'assistant':'user',content:m.text+(m.log&&m.log.length?'\n[Ações: '+m.log.join('; ')+']':'')}));
   try{
     const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:buildSys(),messages:[...hist,{role:'user',content:msg}]})});
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:await buildSys(),messages:[...hist,{role:'user',content:msg}]})});
     const data=await res.json();
     const raw=data.content?.[0]?.text||'Falha na resposta. Tente novamente.';
     const{clean,acts}=parseActs(raw);
@@ -959,6 +951,7 @@ async function sendMsg(){
     autoSave();
     const tp=log.length>0?'act':/você quis dizer|poderia esclarecer/i.test(clean)?'clr':'n';
     pushMsg({role:'nexus',tp,text:clean,log:log.length?log:undefined});
+      memSave(msg, clean); // save to memory
   }catch{pushMsg({role:'nexus',tp:'n',text:'Falha de conexão. Verifique sua rede e tente novamente.'});}
   finally{S.busy=false;document.getElementById('send-btn').disabled=false;renderMsgs();}
 }
@@ -1207,30 +1200,6 @@ function renderSettings(el){
         <div class="srow"><div class="sr-ic" style="background:rgba(124,131,255,.08)">🔐</div><div class="sr-inf"><div class="sr-t">PIN de acesso</div><div class="sr-s">${S.privacy.pinEnabled?'Ativo':'Desativado — ative se quiser'}</div></div><div class="tgl ${S.privacy.pinEnabled?'on':''}" onclick="togPIN()"><div class="tgl-th"></div></div></div>
         <div class="srow" style="padding-bottom:8px"><div class="sr-ic" style="background:rgba(0,229,255,.08)">📤</div><div class="sr-inf"><div class="sr-t">Exportar dados</div><div class="sr-s">Backup completo em JSON</div></div><button class="btn sm" onclick="exportData()">Exportar</button></div>
       </div>
-      <div class="slbl">Sincronização GitHub Gist</div>
-      <div class="card">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
-          <div style="flex:1;font-size:13px;color:var(--tx2)">Sincronize seus dados entre dispositivos via GitHub Gist</div>
-          <span class="gist-status ${S.gist.status}">
-            <span class="sync-dot"></span>
-            ${{ok:'Sincronizado',err:'Erro',pending:'Aguarde…',off:'Inativo'}[S.gist.status]}
-          </span>
-        </div>
-        ${S.gist.lastSync?`<div style="font-size:11px;color:var(--tx3);font-family:var(--FM);margin-bottom:12px">Última sync: ${lastSyncLabel()}</div>`:''}
-        <div class="fg" style="margin-bottom:10px"><label class="fl2">Personal Access Token (GitHub)</label>
-          <input class="inp" id="gist-token" type="password" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" value="${S.gist.token}" oninput="S.gist.token=this.value.trim()"></div>
-        <div class="fg" style="margin-bottom:10px"><label class="fl2">ID do Gist (deixe vazio para criar novo)</label>
-          <input class="inp" id="gist-id" placeholder="Ex: a1b2c3d4e5f6..." value="${S.gist.gistId}" oninput="S.gist.gistId=this.value.trim()"></div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <button class="btn sm" onclick="saveGistConfig();gistPush(false)">⬆ Enviar dados</button>
-          <button class="btn sm ghost" onclick="saveGistConfig();gistPull(false).then(ok=>{if(ok){renderHUD();computeAlerts();}})">⬇ Carregar dados</button>
-          <button class="btn sm ghost" onclick="importData()">📁 Importar JSON</button>
-          <button class="btn sm ghost" onclick="exportData()">📤 Exportar JSON</button>
-        </div>
-        ${!S.gist.token?`<div style="margin-top:12px;padding:10px;background:rgba(0,229,255,.05);border-radius:var(--rs);border:1px solid var(--brd2);font-size:12px;color:var(--tx2);line-height:1.6">
-          <strong style="color:var(--cy)">Como configurar:</strong> Acesse <a href="https://github.com/settings/tokens/new?scopes=gist" target="_blank" style="color:var(--cy)">github.com/settings/tokens</a> → crie um token com escopo <code>gist</code> → cole acima.
-        </div>`:''}
-      </div>
       <div class="dz"><div class="dz-t">⚠ ZONA DE PERIGO</div><button class="btn danger full" onclick="openModal('reset')">Resetar todos os dados</button></div>
     </div>
   </div>`;
@@ -1252,155 +1221,238 @@ function genReport(){
   toast('Relatório gerado no Chat!');
 }
 // ═══════════════════════════════════════════════
-// GIST SYNC SYSTEM v11
+// NEXUS MEMORY ENGINE v12
 // ═══════════════════════════════════════════════
-const LS_GIST = 'nexus_gist';
+const MEM_DB_NAME    = 'nexus_memory';
+const MEM_DB_VER     = 1;
+const MEM_STORE      = 'interactions';
+const MEM_PREF_KEY   = 'nexus_mem_prefs';
+const MEM_RETENTION  = 180; // days
+const MEM_MAX        = 500; // max interactions
+const MEM_COMPRESS_AT= 50;  // compress oldest N when limit hit
+const TAG_KEYWORDS   = {
+  tarefas:  ['tarefa','fazer','pendente','completar','lista','deadline','prazo'],
+  habitos:  ['hábito','meditar','água','exercício','rotina','streak','dormir'],
+  financas: ['dinheiro','gasto','salário','pagar','saldo','economia','investir','conta'],
+  metas:    ['meta','objetivo','plano','alcançar','progresso','prazo','sonho'],
+};
 
-function loadGistConfig(){
-  try{ const g=JSON.parse(localStorage.getItem(LS_GIST)||'{}'); S.gist={token:g.token||'',gistId:g.gistId||'',status:'off',lastSync:g.lastSync||null}; }catch{}
-}
-function saveGistConfig(){
-  localStorage.setItem(LS_GIST,JSON.stringify({token:S.gist.token,gistId:S.gist.gistId,lastSync:S.gist.lastSync}));
-}
+let _memDB = null;
 
-// Build signed export payload
-function buildExportPayload(){
-  const sig = _currentUser ? hashPwd(_currentUser.id+'_'+(_currentUser.pwd||'')) : 'guest';
-  return {
-    _nexus:'v11', _sig:sig, _ts:new Date().toISOString(),
-    profile:S.profile,
-    tasks:S.tasks, habits:S.habits, events:S.events,
-    goals:S.goals, txns:S.txns, dailyNote:S.dailyNote,
-  };
-}
-
-// Validate imported payload signature
-function validatePayload(data){
-  if(!data||data._nexus!=='v11') return false;
-  if(!_currentUser) return true;
-  const expected = hashPwd(_currentUser.id+'_'+(_currentUser.pwd||''));
-  return data._sig === expected;
-}
-
-// Apply imported data to state
-function applyImportedData(data){
-  if(data.profile)   S.profile   = {...S.profile,...data.profile};
-  if(data.tasks)     S.tasks     = data.tasks;
-  if(data.habits)    S.habits    = data.habits;
-  if(data.events)    S.events    = data.events;
-  if(data.goals)     S.goals     = data.goals;
-  if(data.txns)      S.txns      = data.txns;
-  if(data.dailyNote !== undefined) S.dailyNote = data.dailyNote;
+// ── Open IndexedDB ────────────────────────────
+async function memOpen(){
+  if(_memDB) return _memDB;
+  return new Promise((resolve,reject)=>{
+    const req = indexedDB.open(MEM_DB_NAME, MEM_DB_VER);
+    req.onupgradeneeded = e=>{
+      const db = e.target.result;
+      if(!db.objectStoreNames.contains(MEM_STORE)){
+        const store = db.createObjectStore(MEM_STORE,{keyPath:'id',autoIncrement:true});
+        store.createIndex('timestamp','timestamp',{unique:false});
+        store.createIndex('userId','userId',{unique:false});
+      }
+    };
+    req.onsuccess = e=>{ _memDB=e.target.result; resolve(_memDB); };
+    req.onerror   = e=>reject(e.target.error);
+  });
 }
 
-// Push to GitHub Gist
-async function gistPush(silent){
-  if(!S.gist.token){ if(!silent) toast('Configure o token do GitHub nas Config.'); return false; }
-  setGistStatus('pending');
-  const payload = JSON.stringify(buildExportPayload(), null, 2);
-  const filename = 'nexus-sync.json';
-  try{
-    let res;
-    if(!S.gist.gistId){
-      // Create new Gist
-      res = await fetch('https://api.github.com/gists',{
-        method:'POST',
-        headers:{'Authorization':'token '+S.gist.token,'Content-Type':'application/json','Accept':'application/vnd.github.v3+json'},
-        body:JSON.stringify({description:'NEXUS Sync — Agente Pessoal',public:false,files:{[filename]:{content:payload}}})
-      });
-      if(!res.ok) throw new Error('HTTP '+res.status);
-      const data = await res.json();
-      S.gist.gistId = data.id;
-    } else {
-      // Update existing Gist
-      res = await fetch('https://api.github.com/gists/'+S.gist.gistId,{
-        method:'PATCH',
-        headers:{'Authorization':'token '+S.gist.token,'Content-Type':'application/json','Accept':'application/vnd.github.v3+json'},
-        body:JSON.stringify({files:{[filename]:{content:payload}}})
-      });
-      if(!res.ok) throw new Error('HTTP '+res.status);
-    }
-    S.gist.lastSync = new Date().toISOString();
-    saveGistConfig();
-    setGistStatus('ok');
-    if(!silent) toast('Sincronizado com GitHub Gist ✔');
-    return true;
-  }catch(e){
-    console.warn('NEXUS Gist push error:',e);
-    setGistStatus('err');
-    if(!silent) toast('Erro ao sincronizar: '+e.message);
-    return false;
+// ── Auto-tag a message ────────────────────────
+function autoTag(text){
+  const t = text.toLowerCase();
+  const tags = ['geral'];
+  for(const [tag,kws] of Object.entries(TAG_KEYWORDS)){
+    if(kws.some(k=>t.includes(k))) tags.push(tag);
   }
+  return [...new Set(tags)];
 }
 
-// Pull from GitHub Gist
-async function gistPull(silent){
-  if(!S.gist.token||!S.gist.gistId){ if(!silent) toast('Configure token e ID do Gist nas Config.'); return false; }
-  setGistStatus('pending');
+// ── Save interaction ──────────────────────────
+async function memSave(userMsg, nexusResp){
+  if(!_currentUser||_currentUser.isGuest) return;
   try{
-    const res = await fetch('https://api.github.com/gists/'+S.gist.gistId,{
-      headers:{'Authorization':'token '+S.gist.token,'Accept':'application/vnd.github.v3+json'}
+    const db = await memOpen();
+    const tags = autoTag(userMsg+' '+nexusResp);
+    const record = {
+      userId:    _currentUser.id,
+      timestamp: Date.now(),
+      user_message:  userMsg,
+      nexus_response: nexusResp.slice(0,800), // cap response size
+      tags,
+    };
+    await new Promise((res,rej)=>{
+      const tx = db.transaction(MEM_STORE,'readwrite');
+      tx.objectStore(MEM_STORE).add(record);
+      tx.oncomplete=res; tx.onerror=rej;
     });
-    if(!res.ok) throw new Error('HTTP '+res.status);
-    const gistData = await res.json();
-    const file = gistData.files['nexus-sync.json'];
-    if(!file) throw new Error('Arquivo nexus-sync.json não encontrado no Gist');
-    const payload = JSON.parse(file.content);
-    if(!validatePayload(payload)) throw new Error('Assinatura inválida — dados de outro usuário');
-    applyImportedData(payload);
-    saveUserData();
-    S.gist.lastSync = new Date().toISOString();
-    saveGistConfig();
-    setGistStatus('ok');
-    if(!silent) toast('Dados carregados do Gist ✔');
-    return true;
-  }catch(e){
-    console.warn('NEXUS Gist pull error:',e);
-    setGistStatus('err');
-    if(!silent) toast('Erro ao carregar: '+e.message);
-    return false;
+    // Extract preferences asynchronously
+    memExtractPrefs(userMsg, nexusResp);
+    // Enforce limits
+    await memEnforceLimits();
+  }catch(e){ console.warn('NEXUS mem save:',e); }
+}
+
+// ── Load recent interactions for context ─────
+async function memLoad(limit=60){
+  if(!_currentUser||_currentUser.isGuest) return [];
+  try{
+    const db = await memOpen();
+    const cutoff = Date.now() - MEM_RETENTION*24*60*60*1000;
+    return new Promise((res,rej)=>{
+      const tx = db.transaction(MEM_STORE,'readonly');
+      const idx = tx.objectStore(MEM_STORE).index('userId');
+      const results=[];
+      idx.openCursor(IDBKeyRange.only(_currentUser.id),'prev').onsuccess = e=>{
+        const cursor = e.target.result;
+        if(cursor && results.length<limit){
+          const r=cursor.value;
+          if(r.timestamp>=cutoff) results.push(r);
+          cursor.continue();
+        } else res(results.reverse());
+      };
+      tx.onerror=rej;
+    });
+  }catch(e){ console.warn('NEXUS mem load:',e); return []; }
+}
+
+// ── Build memory context string for system prompt
+async function memBuildContext(){
+  const [interactions, prefs] = await Promise.all([memLoad(60), Promise.resolve(memLoadPrefs())]);
+  if(!interactions.length && !prefs) return '';
+
+  let ctx = '\n\n━━━ MEMÓRIA DE CONVERSAS ANTERIORES ━━━\n';
+
+  // Summarized older interactions (>10)
+  if(interactions.length > 10){
+    const older = interactions.slice(0, interactions.length-10);
+    const summary = older.map(i=>`[${new Date(i.timestamp).toLocaleDateString('pt-BR')} | ${i.tags.join('/')}] U: ${i.user_message.slice(0,80)} → N: ${i.nexus_response.slice(0,80)}`).join('\n');
+    ctx += `\nResumo de ${older.length} interações anteriores:\n${summary}\n`;
   }
+
+  // Recent interactions (last 10, full)
+  const recent = interactions.slice(-10);
+  if(recent.length){
+    ctx += `\nÚltimas ${recent.length} interações:\n`;
+    recent.forEach(i=>{
+      ctx += `[${new Date(i.timestamp).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}] ${i.tags.map(t=>t.toUpperCase()).join('/')}\n`;
+      ctx += `Usuário: ${i.user_message.slice(0,150)}\n`;
+      ctx += `NEXUS: ${i.nexus_response.slice(0,150)}\n\n`;
+    });
+  }
+
+  // Extracted preferences
+  if(prefs){
+    if(prefs.topics?.length)    ctx += `\nTópicos recorrentes: ${prefs.topics.join(', ')}`;
+    if(prefs.people?.length)    ctx += `\nPessoas mencionadas: ${prefs.people.join(', ')}`;
+    if(prefs.decisions?.length) ctx += `\nDecisões registradas: ${prefs.decisions.slice(-5).join(' | ')}`;
+    ctx += '\n';
+  }
+
+  ctx += '━━━ FIM DA MEMÓRIA ━━━\n';
+  ctx += 'Use o contexto acima para dar continuidade, lembrar preferências e evitar repetições.';
+  return ctx;
 }
 
-function setGistStatus(status){
-  S.gist.status = status;
-  const labels = {ok:'Sincronizado',err:'Erro',pending:'Sincronizando…',off:'Desativado'};
-  if(S.panel==='settings') refreshPanel();
+// ── Extract preferences from conversation ────
+function memExtractPrefs(userMsg, nexusResp){
+  const prefs = memLoadPrefs();
+  const text  = (userMsg+' '+nexusResp).toLowerCase();
+
+  // Detect recurring topics
+  const topicKws = {academia:['academia','treino','musculação'],financas:['dinheiro','poupança','gasto','investimento'],trabalho:['trabalho','reunião','projeto','chefe','cliente'],saude:['saúde','médico','remédio','dormir'],estudos:['estudar','prova','faculdade','curso']};
+  for(const [topic,kws] of Object.entries(topicKws)){
+    if(kws.some(k=>text.includes(k)) && !prefs.topics.includes(topic)){
+      prefs.topics.push(topic);
+      if(prefs.topics.length>10) prefs.topics.shift();
+    }
+  }
+
+  // Detect people names (simple heuristic: "com [Name]", "para [Name]")
+  const nameMatches = userMsg.match(/(?:com|para|do|da|de)\s+([A-ZÀ-Ú][a-zà-ú]{2,})/g)||[];
+  nameMatches.forEach(m=>{
+    const name = m.split(' ').pop();
+    if(name && !prefs.people.includes(name)){ prefs.people.push(name); if(prefs.people.length>20) prefs.people.shift(); }
+  });
+
+  // Detect decisions ("decidi","vou parar","escolhi","resolvi")
+  const decisionKws = ['decidi','resolvi','escolhi','vou parar','vou começar','quero mudar','preciso'];
+  if(decisionKws.some(k=>userMsg.toLowerCase().includes(k))){
+    const snippet = userMsg.slice(0,100);
+    if(!prefs.decisions.includes(snippet)){ prefs.decisions.push(snippet); if(prefs.decisions.length>30) prefs.decisions.shift(); }
+  }
+
+  memSavePrefs(prefs);
 }
 
-function lastSyncLabel(){
-  if(!S.gist.lastSync) return 'Nunca';
-  const d = new Date(S.gist.lastSync);
-  return d.toLocaleDateString('pt-BR',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+// ── Prefs via LocalStorage ────────────────────
+function memLoadPrefs(){
+  try{ return JSON.parse(localStorage.getItem(MEM_PREF_KEY+((_currentUser?.id)||''))||'{"topics":[],"people":[],"decisions":[]}'); }
+  catch{ return {topics:[],people:[],decisions:[]}; }
+}
+function memSavePrefs(p){
+  if(!_currentUser||_currentUser.isGuest) return;
+  try{ localStorage.setItem(MEM_PREF_KEY+_currentUser.id, JSON.stringify(p)); }catch{}
 }
 
-// Manual export (download JSON)
+// ── Enforce limits + compress ─────────────────
+async function memEnforceLimits(){
+  if(!_currentUser) return;
+  try{
+    const db = await memOpen();
+    const all = await new Promise(res=>{
+      const tx = db.transaction(MEM_STORE,'readonly');
+      const req = tx.objectStore(MEM_STORE).index('userId').getAll(IDBKeyRange.only(_currentUser.id));
+      req.onsuccess=e=>res(e.target.result);
+    });
+    // Remove expired
+    const cutoff = Date.now()-MEM_RETENTION*24*60*60*1000;
+    const expired = all.filter(r=>r.timestamp<cutoff);
+    // Remove if over max
+    const overLimit = all.length>MEM_MAX ? all.slice(0,all.length-MEM_MAX) : [];
+    const toDelete = [...new Set([...expired.map(r=>r.id),...overLimit.map(r=>r.id)])];
+    if(toDelete.length){
+      const tx = db.transaction(MEM_STORE,'readwrite');
+      const store = tx.objectStore(MEM_STORE);
+      toDelete.forEach(id=>store.delete(id));
+      await new Promise((res,rej)=>{ tx.oncomplete=res; tx.onerror=rej; });
+    }
+    // Compress oldest MEM_COMPRESS_AT if over 80% of max
+    if(all.length > MEM_MAX*0.8 && all.length>=MEM_COMPRESS_AT){
+      memCompressOldest(all.slice(0,MEM_COMPRESS_AT));
+    }
+  }catch(e){ console.warn('NEXUS mem enforce:',e); }
+}
+
+// ── Compress oldest interactions into summary ─
+async function memCompressOldest(interactions){
+  if(!interactions.length) return;
+  // Build summary text
+  const summary = '[RESUMO COMPRIMIDO] '+interactions.map(i=>`${new Date(i.timestamp).toLocaleDateString('pt-BR')}: ${i.user_message.slice(0,40)}→${i.nexus_response.slice(0,40)}`).join(' | ');
+  // Delete originals and save summary as single record
+  try{
+    const db = await memOpen();
+    const tx = db.transaction(MEM_STORE,'readwrite');
+    const store = tx.objectStore(MEM_STORE);
+    interactions.forEach(i=>store.delete(i.id));
+    store.add({
+      userId: _currentUser.id,
+      timestamp: interactions[0].timestamp,
+      user_message: summary,
+      nexus_response: '[comprimido]',
+      tags: ['geral','resumo'],
+    });
+    await new Promise((res,rej)=>{ tx.oncomplete=res; tx.onerror=rej; });
+  }catch(e){ console.warn('NEXUS compress:',e); }
+}
+
+// ── Manual export (simple backup) ────────────
 function exportData(){
-  const payload = buildExportPayload();
-  const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+  const prefs = memLoadPrefs();
+  const d={profile:S.profile,tasks:S.tasks,habits:S.habits,events:S.events,goals:S.goals,txns:S.txns,dailyNote:S.dailyNote,prefs,exportedAt:new Date().toISOString()};
+  const blob=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});
   const url=URL.createObjectURL(blob);
   const a=document.createElement('a');a.href=url;a.download=`nexus-backup-${todayStr()}.json`;a.click();
-  URL.revokeObjectURL(url);
-  toast('Backup exportado!');
-}
-
-// Import JSON from file
-function importData(){
-  const input=document.createElement('input');input.type='file';input.accept='.json';
-  input.onchange=async e=>{
-    const file=e.target.files[0]; if(!file) return;
-    try{
-      const text=await file.text();
-      const data=JSON.parse(text);
-      if(!validatePayload(data)){toast('Arquivo inválido ou de outro usuário.');return;}
-      applyImportedData(data);
-      saveUserData();
-      renderHUD();
-      if(S.panel==='settings') refreshPanel();
-      toast('Dados importados com sucesso ✔');
-    }catch(e){ toast('Erro ao importar: '+e.message); }
-  };
-  input.click();
+  URL.revokeObjectURL(url);toast('Backup exportado!');
 }
 
 // ═══════════════════════════════════════════════
@@ -1747,15 +1799,13 @@ function doLogin(user, isNew, isAuto){
           rows:[{label:'Tarefas',pct:tp,cls:tp>60?'g':''},{label:'Hábitos',pct:hp,cls:hp>60?'g':''},{label:S.goals[0]?.title?.slice(0,32)+'…'||'Meta',pct:pct(S.goals[0]||{sub:[]})},{label:'Meta economia',pct:Math.min(100,Math.round(Math.max(0,bal())/SAVINGS_GOAL*100)),cls:'g'}]}});
       pushMsg({role:'nexus',tp:'n',text:'Digite **/** para ver os comandos ou converse comigo diretamente.'});
     }
+    // Init memory DB
+    memOpen().catch(e=>console.warn('NEXUS mem init:',e));
     // Request notification permission
     requestNotifPermission();
     // Schedule daily reminders
     scheduleReminders();
-    // Auto-pull from Gist on login
-    loadGistConfig();
-    if(S.gist.token && S.gist.gistId){
-      gistPull(true).then(ok=>{ if(ok){ renderHUD(); computeAlerts(); } });
-    }
+
   }, delay);
 }
 
@@ -1802,7 +1852,7 @@ function openUserSettings(){document.getElementById('user-dropdown').classList.r
 function switchUser(){
   document.getElementById('user-dropdown').classList.remove('show');
   saveUserData();
-  if(S.gist.token){ gistPush(true).finally(()=>{}); }
+
   _currentUser=null; clearSession();
   document.getElementById('app').classList.add('app-locked');
   document.getElementById('user-menu').style.display='none';
@@ -1813,8 +1863,7 @@ function switchUser(){
 function logout(){
   document.getElementById('user-dropdown').classList.remove('show');
   saveUserData();
-  // Auto-push to Gist on logout (fire and forget)
-  if(S.gist.token){ gistPush(true).finally(()=>{}); }
+
   _currentUser=null; clearSession();
   S.profile.name='Astronauta';
   document.getElementById('app').classList.add('app-locked');
@@ -1909,7 +1958,6 @@ function getCurrentExpiry(){
   document.getElementById('app').classList.add('app-locked');
   switchTab('login');
   const session=getSession();
-  loadGistConfig(); // always load gist config on startup
   if(session && isSessionValid(session)){
     const users=getUsers();
     const user=users.find(u=>u.id===session.userId||u.email===session.email);
