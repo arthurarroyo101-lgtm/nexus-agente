@@ -458,6 +458,14 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--tx);font-
 /* Notif badge on login */
 .notif-banner{background:rgba(0,229,255,.06);border:1px solid rgba(0,229,255,.18);border-radius:var(--rs);padding:10px 14px;font-size:12.5px;color:var(--tx2);display:flex;align-items:center;gap:9px;margin-bottom:14px}
 .notif-banner-dot{width:6px;height:6px;border-radius:50%;background:var(--cy);box-shadow:0 0 6px var(--cy);flex-shrink:0}
+
+/* Gist sync status */
+.gist-status{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-family:var(--FM);padding:3px 10px;border-radius:20px;flex-shrink:0}
+.gist-status.ok{background:rgba(0,230,118,.1);color:var(--gn);border:1px solid rgba(0,230,118,.22)}
+.gist-status.err{background:rgba(255,82,82,.1);color:var(--rd);border:1px solid rgba(255,82,82,.22)}
+.gist-status.pending{background:rgba(255,202,40,.1);color:var(--am);border:1px solid rgba(255,202,40,.22)}
+.gist-status.off{background:var(--bg3);color:var(--tx3);border:1px solid var(--brd2)}
+.sync-dot{width:5px;height:5px;border-radius:50%;background:currentColor;animation:blink 1.8s ease-in-out infinite}
 </style>
 </head>
 <body>
@@ -658,6 +666,7 @@ const S = {
     {id:4,desc:'Aluguel',amount:1200,cat:'Moradia',type:'expense',date:'10/03'},
   ],
   msgs:[],
+  gist:{token:'', gistId:'', status:'off', lastSync:null},
 };
 
 // ═══════════════════════════════════════════════
@@ -1198,6 +1207,30 @@ function renderSettings(el){
         <div class="srow"><div class="sr-ic" style="background:rgba(124,131,255,.08)">🔐</div><div class="sr-inf"><div class="sr-t">PIN de acesso</div><div class="sr-s">${S.privacy.pinEnabled?'Ativo':'Desativado — ative se quiser'}</div></div><div class="tgl ${S.privacy.pinEnabled?'on':''}" onclick="togPIN()"><div class="tgl-th"></div></div></div>
         <div class="srow" style="padding-bottom:8px"><div class="sr-ic" style="background:rgba(0,229,255,.08)">📤</div><div class="sr-inf"><div class="sr-t">Exportar dados</div><div class="sr-s">Backup completo em JSON</div></div><button class="btn sm" onclick="exportData()">Exportar</button></div>
       </div>
+      <div class="slbl">Sincronização GitHub Gist</div>
+      <div class="card">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+          <div style="flex:1;font-size:13px;color:var(--tx2)">Sincronize seus dados entre dispositivos via GitHub Gist</div>
+          <span class="gist-status ${S.gist.status}">
+            <span class="sync-dot"></span>
+            ${{ok:'Sincronizado',err:'Erro',pending:'Aguarde…',off:'Inativo'}[S.gist.status]}
+          </span>
+        </div>
+        ${S.gist.lastSync?`<div style="font-size:11px;color:var(--tx3);font-family:var(--FM);margin-bottom:12px">Última sync: ${lastSyncLabel()}</div>`:''}
+        <div class="fg" style="margin-bottom:10px"><label class="fl2">Personal Access Token (GitHub)</label>
+          <input class="inp" id="gist-token" type="password" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" value="${S.gist.token}" oninput="S.gist.token=this.value.trim()"></div>
+        <div class="fg" style="margin-bottom:10px"><label class="fl2">ID do Gist (deixe vazio para criar novo)</label>
+          <input class="inp" id="gist-id" placeholder="Ex: a1b2c3d4e5f6..." value="${S.gist.gistId}" oninput="S.gist.gistId=this.value.trim()"></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn sm" onclick="saveGistConfig();gistPush(false)">⬆ Enviar dados</button>
+          <button class="btn sm ghost" onclick="saveGistConfig();gistPull(false).then(ok=>{if(ok){renderHUD();computeAlerts();}})">⬇ Carregar dados</button>
+          <button class="btn sm ghost" onclick="importData()">📁 Importar JSON</button>
+          <button class="btn sm ghost" onclick="exportData()">📤 Exportar JSON</button>
+        </div>
+        ${!S.gist.token?`<div style="margin-top:12px;padding:10px;background:rgba(0,229,255,.05);border-radius:var(--rs);border:1px solid var(--brd2);font-size:12px;color:var(--tx2);line-height:1.6">
+          <strong style="color:var(--cy)">Como configurar:</strong> Acesse <a href="https://github.com/settings/tokens/new?scopes=gist" target="_blank" style="color:var(--cy)">github.com/settings/tokens</a> → crie um token com escopo <code>gist</code> → cole acima.
+        </div>`:''}
+      </div>
       <div class="dz"><div class="dz-t">⚠ ZONA DE PERIGO</div><button class="btn danger full" onclick="openModal('reset')">Resetar todos os dados</button></div>
     </div>
   </div>`;
@@ -1218,11 +1251,156 @@ function genReport(){
       rows:[{label:'Tarefas',pct:tp,cls:tp>60?'g':''},{label:'Hábitos',pct:hp,cls:hp>60?'g':''},{label:'Meta economia',pct:Math.min(100,Math.round(Math.max(0,bal())/SAVINGS_GOAL*100)),cls:'g'},...S.goals.map(g=>({label:g.title.slice(0,32)+'…',pct:pct(g),cls:pct(g)<40?'w':''}))]}});
   toast('Relatório gerado no Chat!');
 }
+// ═══════════════════════════════════════════════
+// GIST SYNC SYSTEM v11
+// ═══════════════════════════════════════════════
+const LS_GIST = 'nexus_gist';
+
+function loadGistConfig(){
+  try{ const g=JSON.parse(localStorage.getItem(LS_GIST)||'{}'); S.gist={token:g.token||'',gistId:g.gistId||'',status:'off',lastSync:g.lastSync||null}; }catch{}
+}
+function saveGistConfig(){
+  localStorage.setItem(LS_GIST,JSON.stringify({token:S.gist.token,gistId:S.gist.gistId,lastSync:S.gist.lastSync}));
+}
+
+// Build signed export payload
+function buildExportPayload(){
+  const sig = _currentUser ? hashPwd(_currentUser.id+'_'+(_currentUser.pwd||'')) : 'guest';
+  return {
+    _nexus:'v11', _sig:sig, _ts:new Date().toISOString(),
+    profile:S.profile,
+    tasks:S.tasks, habits:S.habits, events:S.events,
+    goals:S.goals, txns:S.txns, dailyNote:S.dailyNote,
+  };
+}
+
+// Validate imported payload signature
+function validatePayload(data){
+  if(!data||data._nexus!=='v11') return false;
+  if(!_currentUser) return true;
+  const expected = hashPwd(_currentUser.id+'_'+(_currentUser.pwd||''));
+  return data._sig === expected;
+}
+
+// Apply imported data to state
+function applyImportedData(data){
+  if(data.profile)   S.profile   = {...S.profile,...data.profile};
+  if(data.tasks)     S.tasks     = data.tasks;
+  if(data.habits)    S.habits    = data.habits;
+  if(data.events)    S.events    = data.events;
+  if(data.goals)     S.goals     = data.goals;
+  if(data.txns)      S.txns      = data.txns;
+  if(data.dailyNote !== undefined) S.dailyNote = data.dailyNote;
+}
+
+// Push to GitHub Gist
+async function gistPush(silent){
+  if(!S.gist.token){ if(!silent) toast('Configure o token do GitHub nas Config.'); return false; }
+  setGistStatus('pending');
+  const payload = JSON.stringify(buildExportPayload(), null, 2);
+  const filename = 'nexus-sync.json';
+  try{
+    let res;
+    if(!S.gist.gistId){
+      // Create new Gist
+      res = await fetch('https://api.github.com/gists',{
+        method:'POST',
+        headers:{'Authorization':'token '+S.gist.token,'Content-Type':'application/json','Accept':'application/vnd.github.v3+json'},
+        body:JSON.stringify({description:'NEXUS Sync — Agente Pessoal',public:false,files:{[filename]:{content:payload}}})
+      });
+      if(!res.ok) throw new Error('HTTP '+res.status);
+      const data = await res.json();
+      S.gist.gistId = data.id;
+    } else {
+      // Update existing Gist
+      res = await fetch('https://api.github.com/gists/'+S.gist.gistId,{
+        method:'PATCH',
+        headers:{'Authorization':'token '+S.gist.token,'Content-Type':'application/json','Accept':'application/vnd.github.v3+json'},
+        body:JSON.stringify({files:{[filename]:{content:payload}}})
+      });
+      if(!res.ok) throw new Error('HTTP '+res.status);
+    }
+    S.gist.lastSync = new Date().toISOString();
+    saveGistConfig();
+    setGistStatus('ok');
+    if(!silent) toast('Sincronizado com GitHub Gist ✔');
+    return true;
+  }catch(e){
+    console.warn('NEXUS Gist push error:',e);
+    setGistStatus('err');
+    if(!silent) toast('Erro ao sincronizar: '+e.message);
+    return false;
+  }
+}
+
+// Pull from GitHub Gist
+async function gistPull(silent){
+  if(!S.gist.token||!S.gist.gistId){ if(!silent) toast('Configure token e ID do Gist nas Config.'); return false; }
+  setGistStatus('pending');
+  try{
+    const res = await fetch('https://api.github.com/gists/'+S.gist.gistId,{
+      headers:{'Authorization':'token '+S.gist.token,'Accept':'application/vnd.github.v3+json'}
+    });
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    const gistData = await res.json();
+    const file = gistData.files['nexus-sync.json'];
+    if(!file) throw new Error('Arquivo nexus-sync.json não encontrado no Gist');
+    const payload = JSON.parse(file.content);
+    if(!validatePayload(payload)) throw new Error('Assinatura inválida — dados de outro usuário');
+    applyImportedData(payload);
+    saveUserData();
+    S.gist.lastSync = new Date().toISOString();
+    saveGistConfig();
+    setGistStatus('ok');
+    if(!silent) toast('Dados carregados do Gist ✔');
+    return true;
+  }catch(e){
+    console.warn('NEXUS Gist pull error:',e);
+    setGistStatus('err');
+    if(!silent) toast('Erro ao carregar: '+e.message);
+    return false;
+  }
+}
+
+function setGistStatus(status){
+  S.gist.status = status;
+  const labels = {ok:'Sincronizado',err:'Erro',pending:'Sincronizando…',off:'Desativado'};
+  if(S.panel==='settings') refreshPanel();
+}
+
+function lastSyncLabel(){
+  if(!S.gist.lastSync) return 'Nunca';
+  const d = new Date(S.gist.lastSync);
+  return d.toLocaleDateString('pt-BR',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+}
+
+// Manual export (download JSON)
 function exportData(){
-  const d={profile:S.profile,tasks:S.tasks,habits:S.habits,events:S.events,goals:S.goals,transactions:S.txns,exportedAt:new Date().toISOString()};
-  const blob=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});
-  const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`nexus-${todayStr()}.json`;a.click();URL.revokeObjectURL(url);
-  toast('Dados exportados!');
+  const payload = buildExportPayload();
+  const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download=`nexus-backup-${todayStr()}.json`;a.click();
+  URL.revokeObjectURL(url);
+  toast('Backup exportado!');
+}
+
+// Import JSON from file
+function importData(){
+  const input=document.createElement('input');input.type='file';input.accept='.json';
+  input.onchange=async e=>{
+    const file=e.target.files[0]; if(!file) return;
+    try{
+      const text=await file.text();
+      const data=JSON.parse(text);
+      if(!validatePayload(data)){toast('Arquivo inválido ou de outro usuário.');return;}
+      applyImportedData(data);
+      saveUserData();
+      renderHUD();
+      if(S.panel==='settings') refreshPanel();
+      toast('Dados importados com sucesso ✔');
+    }catch(e){ toast('Erro ao importar: '+e.message); }
+  };
+  input.click();
 }
 
 // ═══════════════════════════════════════════════
@@ -1573,6 +1751,11 @@ function doLogin(user, isNew, isAuto){
     requestNotifPermission();
     // Schedule daily reminders
     scheduleReminders();
+    // Auto-pull from Gist on login
+    loadGistConfig();
+    if(S.gist.token && S.gist.gistId){
+      gistPull(true).then(ok=>{ if(ok){ renderHUD(); computeAlerts(); } });
+    }
   }, delay);
 }
 
@@ -1618,7 +1801,8 @@ document.addEventListener('click',e=>{
 function openUserSettings(){document.getElementById('user-dropdown').classList.remove('show');goPanel('settings');}
 function switchUser(){
   document.getElementById('user-dropdown').classList.remove('show');
-  saveUserData(); // persist before switching
+  saveUserData();
+  if(S.gist.token){ gistPush(true).finally(()=>{}); }
   _currentUser=null; clearSession();
   document.getElementById('app').classList.add('app-locked');
   document.getElementById('user-menu').style.display='none';
@@ -1628,7 +1812,9 @@ function switchUser(){
 }
 function logout(){
   document.getElementById('user-dropdown').classList.remove('show');
-  saveUserData(); // persist before logout
+  saveUserData();
+  // Auto-push to Gist on logout (fire and forget)
+  if(S.gist.token){ gistPush(true).finally(()=>{}); }
   _currentUser=null; clearSession();
   S.profile.name='Astronauta';
   document.getElementById('app').classList.add('app-locked');
@@ -1723,6 +1909,7 @@ function getCurrentExpiry(){
   document.getElementById('app').classList.add('app-locked');
   switchTab('login');
   const session=getSession();
+  loadGistConfig(); // always load gist config on startup
   if(session && isSessionValid(session)){
     const users=getUsers();
     const user=users.find(u=>u.id===session.userId||u.email===session.email);
