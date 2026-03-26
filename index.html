@@ -878,6 +878,15 @@ Metas: ${JSON.stringify(S.goals.map(g=>({t:g.title,prog:pct(g)+'%',dl:g.deadline
 Finanças: receita ${fmt(inc())} | gastos ${fmt(exp())} | saldo ${fmt(bal())}${overLim()?' ⚠':''}
 Hoje: ${todayStr()}`;
 }
+// Fallback system prompt (no memory context) — used when IndexedDB fails
+function buildSysBasic(){
+  return `Você é o NEXUS — agente de IA pessoal space-tech. Responda SEMPRE em português brasileiro.
+Usuário: ${S.profile.name}${S.profile.profession?' ('+S.profile.profession+')':''}. Tom: ${S.profile.commStyle}.
+Use **negrito** para destaques. Seja completo sem exagerar.
+ÁREAS: Metas · Finanças · Hábitos · Tarefas · Calendário
+DADOS: ${buildCtx()}`;
+}
+
 async function buildSys(){
   const memCtx = await memBuildContext();
   return `Você é o NEXUS — agente de IA pessoal space-tech. Responda SEMPRE em português brasileiro.
@@ -941,8 +950,22 @@ async function sendMsg(){
   S.busy=true; document.getElementById('send-btn').disabled=true; renderMsgs();
   const hist=S.msgs.slice(-16).map(m=>({role:m.role==='nexus'?'assistant':'user',content:m.text+(m.log&&m.log.length?'\n[Ações: '+m.log.join('; ')+']':'')}));
   try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:await buildSys(),messages:[...hist,{role:'user',content:msg}]})});
+    // Build system prompt — memory errors must never block the API call
+    let sysPrompt;
+    try{ sysPrompt = await buildSys(); }
+    catch(memErr){ console.warn('NEXUS mem ctx error (non-fatal):',memErr); sysPrompt = buildSysBasic(); }
+
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:sysPrompt,messages:[...hist,{role:'user',content:msg}]})
+    });
+
+    if(!res.ok){
+      const errData = await res.json().catch(()=>({}));
+      throw new Error(`API ${res.status}: ${errData?.error?.message||res.statusText}`);
+    }
+
     const data=await res.json();
     const raw=data.content?.[0]?.text||'Falha na resposta. Tente novamente.';
     const{clean,acts}=parseActs(raw);
@@ -951,19 +974,25 @@ async function sendMsg(){
     autoSave();
     const tp=log.length>0?'act':/você quis dizer|poderia esclarecer/i.test(clean)?'clr':'n';
     pushMsg({role:'nexus',tp,text:clean,log:log.length?log:undefined});
-      memSave(msg, clean); // save to memory
+    // Save to memory async — never block UI
+    memSave(msg, clean).catch(e=>console.warn('NEXUS memSave:',e));
   }catch(err){
-    console.warn('NEXUS send error:', err);
-    const offline = !navigator.onLine;
-    const isMemErr = err?.message?.includes('IndexedDB') || err?.message?.includes('memory');
+    console.warn('NEXUS send error:', err?.message||err);
+    const isOffline   = !navigator.onLine;
+    const isCORS      = err instanceof TypeError && err.message.includes('Failed to fetch');
+    const isAPIKey    = err?.message?.includes('401') || err?.message?.includes('authentication');
+    const isRateLimit = err?.message?.includes('429') || err?.message?.includes('rate');
     let errMsg;
-    if(offline){
-      errMsg = '**Sem conexão** — você está offline. O NEXUS funciona sem internet, mas a IA requer conexão para responder.';
-    } else if(isMemErr){
-      errMsg = 'Erro interno de memória. Suas mensagens continuam sendo salvas localmente.';
-      console.warn('NEXUS memory error:', err);
+    if(isOffline){
+      errMsg = '**Sem conexão** — você está offline. Reconecte-se à internet para conversar com a IA.\n\nSuas tarefas, hábitos e dados continuam disponíveis offline.';
+    } else if(isAPIKey){
+      errMsg = 'Erro de autenticação com a API. Verifique se a chave está configurada corretamente.';
+    } else if(isRateLimit){
+      errMsg = 'Limite de requisições atingido. Aguarde alguns segundos e tente novamente.';
+    } else if(isCORS){
+      errMsg = 'Não foi possível contactar a IA (erro de rede). Verifique sua conexão e tente novamente.';
     } else {
-      errMsg = 'Não foi possível conectar à IA. Verifique sua internet e tente novamente.';
+      errMsg = `Erro ao contactar a IA: ${err?.message||'desconhecido'}. Tente novamente.`;
     }
     pushMsg({role:'nexus',tp:'n',text:errMsg});
   }
