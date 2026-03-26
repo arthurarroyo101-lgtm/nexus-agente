@@ -952,7 +952,21 @@ async function sendMsg(){
     const tp=log.length>0?'act':/você quis dizer|poderia esclarecer/i.test(clean)?'clr':'n';
     pushMsg({role:'nexus',tp,text:clean,log:log.length?log:undefined});
       memSave(msg, clean); // save to memory
-  }catch{pushMsg({role:'nexus',tp:'n',text:'Falha de conexão. Verifique sua rede e tente novamente.'});}
+  }catch(err){
+    console.warn('NEXUS send error:', err);
+    const offline = !navigator.onLine;
+    const isMemErr = err?.message?.includes('IndexedDB') || err?.message?.includes('memory');
+    let errMsg;
+    if(offline){
+      errMsg = '**Sem conexão** — você está offline. O NEXUS funciona sem internet, mas a IA requer conexão para responder.';
+    } else if(isMemErr){
+      errMsg = 'Erro interno de memória. Suas mensagens continuam sendo salvas localmente.';
+      console.warn('NEXUS memory error:', err);
+    } else {
+      errMsg = 'Não foi possível conectar à IA. Verifique sua internet e tente novamente.';
+    }
+    pushMsg({role:'nexus',tp:'n',text:errMsg});
+  }
   finally{S.busy=false;document.getElementById('send-btn').disabled=false;renderMsgs();}
 }
 
@@ -1317,6 +1331,7 @@ async function memLoad(limit=60){
 
 // ── Build memory context string for system prompt
 async function memBuildContext(){
+  try{
   const [interactions, prefs] = await Promise.all([memLoad(60), Promise.resolve(memLoadPrefs())]);
   if(!interactions.length && !prefs) return '';
 
@@ -1351,6 +1366,7 @@ async function memBuildContext(){
   ctx += '━━━ FIM DA MEMÓRIA ━━━\n';
   ctx += 'Use o contexto acima para dar continuidade, lembrar preferências e evitar repetições.';
   return ctx;
+  }catch(e){ console.warn('NEXUS memBuildContext error:',e); return ''; }
 }
 
 // ── Extract preferences from conversation ────
@@ -1604,6 +1620,22 @@ function init(){
 
   // Activate PIN if enabled
   if(S.privacy.pinEnabled) renderPINscreen();
+
+  // Offline/online indicator
+  function updateOnlineStatus(){
+    const pill=document.getElementById('st-label');
+    const dot=document.querySelector('.sdot');
+    if(!navigator.onLine){
+      if(pill) pill.textContent='OFFLINE';
+      if(dot)  dot.style.background='var(--am)';
+    } else {
+      if(pill) pill.textContent=(_currentUser&&!_currentUser.isGuest)?'ONLINE':'ONLINE';
+      if(dot)  dot.style.background='var(--gn)';
+    }
+  }
+  window.addEventListener('online',  updateOnlineStatus);
+  window.addEventListener('offline', updateOnlineStatus);
+  updateOnlineStatus();
 
   // Register Service Worker (PWA)
   if('serviceWorker' in navigator){
