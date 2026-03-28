@@ -389,39 +389,60 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--tx);font-
 .pin-k.del{font-size:12px;color:var(--tx3)}
 
 /* ══ LOGIN MODAL ══════════════════════════════════════════ */
-.login-backdrop{position:fixed;inset:0;z-index:600;background:rgba(5,12,24,.92);backdrop-filter:blur(16px);display:flex;align-items:center;justify-content:center;padding:20px}
+/* ══ LOGIN CSS ══════════════════════════════════════════ */
+.login-backdrop{position:fixed;inset:0;z-index:600;background:rgba(5,12,24,.96);backdrop-filter:blur(20px);display:flex;align-items:center;justify-content:center;padding:20px}
 .login-backdrop.hidden{display:none}
-.login-box{background:var(--bg1);border:1px solid var(--brd);border-radius:var(--r);padding:32px 28px;width:100%;max-width:400px;max-height:90vh;overflow-y:auto;animation:lboxin .35s cubic-bezier(.34,1.4,.64,1)}
-@keyframes lboxin{from{transform:translateY(30px) scale(.96);opacity:0}to{transform:translateY(0) scale(1);opacity:1}}
-.login-orb-wrap{display:flex;flex-direction:column;align-items:center;gap:10px;margin-bottom:28px}
-.login-orb{width:56px;height:56px;border-radius:50%;background:radial-gradient(circle,rgba(0,229,255,.22),transparent);border:2px solid rgba(0,229,255,.4);display:flex;align-items:center;justify-content:center;position:relative}
-.login-orb::before{content:'';position:absolute;inset:0;border-radius:50%;border:1.5px solid rgba(0,229,255,.35);animation:orbsp 9s linear infinite}
+.login-box{background:var(--bg1);border:1px solid var(--brd);border-radius:var(--r);padding:36px 28px 28px;width:100%;max-width:420px;max-height:92vh;overflow-y:auto;animation:lboxin .35s cubic-bezier(.34,1.4,.64,1);scrollbar-width:thin;scrollbar-color:var(--bg3) transparent}
+@keyframes lboxin{from{transform:translateY(24px) scale(.97);opacity:0}to{transform:translateY(0) scale(1);opacity:1}}
+.login-brand{display:flex;flex-direction:column;align-items:center;gap:10px;margin-bottom:32px}
+.login-orb{width:58px;height:58px;border-radius:50%;background:radial-gradient(circle,rgba(0,229,255,.22),transparent);border:2px solid rgba(0,229,255,.4);display:flex;align-items:center;justify-content:center;position:relative;flex-shrink:0}
+.login-orb::before{content:'';position:absolute;inset:0;border-radius:50%;border:1.5px solid rgba(0,229,255,.3);animation:orbsp 9s linear infinite}
 .login-orb-c{width:9px;height:9px;border-radius:50%;background:var(--cy);box-shadow:0 0 12px var(--cy);animation:orbp 2.5s ease-in-out infinite;z-index:1}
-.login-title{font-family:var(--FD);font-size:22px;font-weight:800;letter-spacing:5px;text-transform:uppercase;color:var(--tx)}
-.login-title em{color:var(--cy);font-style:normal;text-shadow:0 0 12px var(--cg)}
-.login-sub{font-size:13px;color:var(--tx3);font-family:var(--FM);letter-spacing:.5px;margin-top:2px}
-.login-tabs{display:flex;gap:0;background:var(--bg2);border-radius:var(--rs);padding:3px;margin-bottom:22px;border:1px solid var(--brd2)}
-.ltab{flex:1;padding:8px;border-radius:6px;background:transparent;border:none;color:var(--tx3);font-size:13px;font-weight:500;font-family:var(--FB);cursor:pointer;transition:all var(--T)}
-.ltab.on{background:var(--bg1);color:var(--cy);border:1px solid var(--brd)}
-.login-fg{margin-bottom:14px}
-.login-fl{font-size:10px;font-weight:700;color:var(--tx3);letter-spacing:1.5px;text-transform:uppercase;font-family:var(--FM);margin-bottom:6px;display:block}
+.login-title{font-family:var(--FD);font-size:24px;font-weight:800;letter-spacing:6px;text-transform:uppercase;color:var(--tx);line-height:1}
+.login-title em{color:var(--cy);font-style:normal;text-shadow:0 0 14px var(--cg)}
+.login-sub{font-size:12px;color:var(--tx3);font-family:var(--FM);letter-spacing:.8px}
+.login-tabs{display:flex;background:var(--bg2);border-radius:var(--rs);padding:3px;margin-bottom:24px;border:1px solid var(--brd2);gap:3px}
+.ltab{flex:1;padding:9px;border-radius:6px;background:transparent;border:none;color:var(--tx3);font-size:13px;font-weight:500;font-family:var(--FB);cursor:pointer;transition:all var(--T)}
+.ltab.on{background:var(--bg1);color:var(--cy);border:1px solid var(--brd);box-shadow:0 2px 8px rgba(0,0,0,.2)}
+.login-fg{margin-bottom:16px}
+.login-fl{font-size:10px;font-weight:700;color:var(--tx3);letter-spacing:1.5px;text-transform:uppercase;font-family:var(--FM);margin-bottom:7px;display:block}
+.login-inp-wrap{position:relative;display:flex;align-items:center}
 .login-inp{width:100%;background:var(--bg2);border:1px solid var(--brd2);border-radius:var(--rs);padding:12px 16px;font-size:14px;color:var(--tx);font-family:var(--FB);outline:none;transition:border-color var(--T),box-shadow var(--T)}
-.login-inp:focus{border-color:rgba(0,229,255,.4);box-shadow:0 0 0 3px rgba(0,229,255,.07)}
-.login-inp::placeholder{color:var(--tx3)}
-.login-row{display:flex;align-items:center;gap:10px;margin-bottom:18px}
-.login-check{width:18px;height:18px;border-radius:4px;border:1.5px solid var(--brd);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:10px;transition:all var(--T);flex-shrink:0}
-.login-check.on{background:rgba(0,229,255,.15);border-color:var(--cy);color:var(--cy)}
-.login-check-lbl{font-size:13px;color:var(--tx2);cursor:pointer}
-.login-btn{width:100%;padding:13px;background:linear-gradient(135deg,rgba(0,229,255,.22),rgba(0,180,255,.14));border:1px solid rgba(0,229,255,.4);border-radius:var(--rs);color:var(--cy);font-size:15px;font-weight:600;font-family:var(--FB);cursor:pointer;transition:all var(--T);box-shadow:0 0 20px rgba(0,229,255,.15)}
-.login-btn:hover{background:linear-gradient(135deg,rgba(0,229,255,.32),rgba(0,180,255,.22));box-shadow:0 0 30px rgba(0,229,255,.28);transform:translateY(-1px)}
+.login-inp:focus{border-color:rgba(0,229,255,.42);box-shadow:0 0 0 3px rgba(0,229,255,.07)}
+.login-inp::placeholder{color:var(--tx3);font-size:13px}
+.login-inp.has-eye{padding-right:46px}
+.eye-btn{position:absolute;right:0;top:0;bottom:0;width:44px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--tx3);background:none;border:none;font-size:18px;transition:color var(--T);flex-shrink:0}
+.eye-btn:hover{color:var(--cy)}
+.login-remember{display:flex;align-items:center;gap:10px;margin-bottom:20px;cursor:pointer;user-select:none}
+.remember-box{width:20px;height:20px;border-radius:5px;border:1.5px solid var(--brd);background:transparent;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all var(--T);font-size:11px;font-weight:700}
+.remember-box.on{background:rgba(0,229,255,.15);border-color:var(--cy);color:var(--cy)}
+.remember-lbl{font-size:13px;color:var(--tx2)}
+.login-btn{width:100%;padding:13px;background:linear-gradient(135deg,rgba(0,229,255,.22),rgba(0,180,255,.14));border:1px solid rgba(0,229,255,.4);border-radius:var(--rs);color:var(--cy);font-size:15px;font-weight:600;font-family:var(--FB);cursor:pointer;transition:all var(--T);box-shadow:0 0 20px rgba(0,229,255,.12);margin-bottom:12px}
+.login-btn:hover{background:linear-gradient(135deg,rgba(0,229,255,.32),rgba(0,180,255,.22));box-shadow:0 0 28px rgba(0,229,255,.25);transform:translateY(-1px)}
 .login-link{background:none;border:none;color:var(--cy);font-size:12px;font-family:var(--FM);cursor:pointer;text-decoration:underline;padding:0;transition:opacity var(--T)}
 .login-link:hover{opacity:.7}
-.login-divider{display:flex;align-items:center;gap:10px;margin:14px 0;color:var(--tx3);font-size:11px;font-family:var(--FM)}
+.login-err{background:rgba(255,82,82,.08);border:1px solid rgba(255,82,82,.22);border-radius:var(--rs);padding:10px 14px;font-size:13px;color:var(--rd);margin-bottom:16px;display:none;align-items:center;gap:8px}
+.login-err.show{display:flex}
+.login-divider{display:flex;align-items:center;gap:10px;margin:16px 0;color:var(--tx3);font-size:11px;font-family:var(--FM)}
 .login-divider::before,.login-divider::after{content:'';flex:1;height:1px;background:var(--brd2)}
-.guest-btn{width:100%;padding:10px;background:transparent;border:1px solid var(--brd2);border-radius:var(--rs);color:var(--tx3);font-size:13px;font-weight:500;font-family:var(--FB);cursor:pointer;transition:all var(--T)}
+.guest-btn{width:100%;padding:11px;background:transparent;border:1px solid var(--brd2);border-radius:var(--rs);color:var(--tx3);font-size:13px;font-weight:500;font-family:var(--FB);cursor:pointer;transition:all var(--T);display:flex;align-items:center;justify-content:center;gap:8px}
 .guest-btn:hover{border-color:var(--brd);color:var(--tx2);background:var(--bg2)}
-.login-err{background:rgba(255,82,82,.08);border:1px solid rgba(255,82,82,.2);border-radius:var(--rs);padding:10px 14px;font-size:13px;color:var(--rd);margin-bottom:14px;display:none}
-.login-err.show{display:block}
+/* Password field wrapper */
+.pass-wrap{position:relative;display:flex;align-items:center}
+.pass-wrap .login-inp{padding-right:44px}
+.pass-eye{position:absolute;right:14px;background:none;border:none;color:var(--tx3);cursor:pointer;font-size:16px;line-height:1;padding:4px;transition:color var(--T);flex-shrink:0}
+.pass-eye:hover{color:var(--cy)}
+/* Remember checkbox */
+.login-remember{display:flex;align-items:center;gap:10px;margin:14px 0 18px;cursor:pointer;user-select:none}
+.login-remember-box{width:20px;height:20px;border-radius:5px;border:1.5px solid var(--brd);background:transparent;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;transition:all var(--T)}
+.login-remember-box.on{background:rgba(0,229,255,.15);border-color:var(--cy);color:var(--cy)}
+.login-remember-lbl{font-size:13px;color:var(--tx2)}
+.saved-chip{display:flex;align-items:center;gap:10px;padding:10px 13px;background:var(--bg2);border:1px solid var(--brd2);border-radius:var(--rs);margin-bottom:7px;transition:border-color var(--T)}
+.saved-chip:hover{border-color:var(--brd)}
+.saved-av{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,rgba(0,229,255,.22),rgba(124,131,255,.18));border:1px solid rgba(0,229,255,.3);display:flex;align-items:center;justify-content:center;font-family:var(--FD);font-size:11px;font-weight:800;color:var(--cy);flex-shrink:0}
+.saved-info{flex:1;overflow:hidden}
+.saved-name{font-size:13.5px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.saved-email{font-size:11px;color:var(--tx3);font-family:var(--FM)}
 
 /* Welcome screen */
 .welcome-screen{position:fixed;inset:0;z-index:550;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;animation:fadeIn .4s ease;text-align:center;padding:32px}
@@ -468,27 +489,27 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--tx);font-
 <!-- ══ LOGIN MODAL ══════════════════════════════════════ -->
 <div class="login-backdrop" id="login-backdrop">
   <div class="login-box" id="login-box">
+
+    <!-- Brand -->
     <div class="login-orb-wrap">
       <div class="login-orb"><div class="login-orb-c"></div></div>
       <div class="login-title">NEX<em>US</em></div>
       <div class="login-sub" id="login-sub">Acesse seu agente pessoal</div>
     </div>
+
+    <!-- Tabs -->
     <div class="login-tabs">
       <button class="ltab on" id="tab-in" onclick="switchTab('login')">Entrar</button>
       <button class="ltab" id="tab-up" onclick="switchTab('register')">Criar conta</button>
     </div>
+
+    <!-- Error -->
     <div class="login-err" id="login-err"></div>
-    <form id="login-form" autocomplete="on" onsubmit="return false">
-      <div id="form-fields"></div>
-      <div class="login-row" id="remember-row">
-        <div class="login-check" id="remember-chk" onclick="toggleRemember()"></div>
-        <span class="login-check-lbl" onclick="toggleRemember()">Manter sessão ativa</span>
-      </div>
-      <button class="login-btn" id="login-submit-btn" onclick="handleAuth()">Entrar</button>
-    </form>
-    <div style="text-align:center;margin-top:12px" id="forgot-wrap">
-      <button class="login-link" onclick="switchTab('recover')">Esqueci minha senha</button>
-    </div>
+
+    <!-- Form (rendered by JS) -->
+    <div id="form-fields"></div>
+
+    <!-- Guest -->
     <div class="login-divider">ou</div>
     <button class="guest-btn" onclick="enterGuest()">👁 Entrar como convidado (somente leitura)</button>
   </div>
@@ -888,25 +909,26 @@ DADOS: ${buildCtx()}`;
 }
 
 async function buildSys(){
-  const memCtx = await memBuildContext();
-  return `Você é o NEXUS — agente de IA pessoal space-tech. Responda SEMPRE em português brasileiro.
-Usuário: ${S.profile.name}${S.profile.profession?' ('+S.profile.profession+')':''}. Tom: ${S.profile.commStyle}.
-Use **negrito** para destaques. Seja completo sem exagerar.
-
-ÁREAS PRIORITÁRIAS: 1.Metas 2.Finanças 3.Hábitos 4.Tarefas 5.Calendário
-
-RESPOSTA: 1)Resumo do que entendeu 2)Resposta 3)Próximo passo (opcional). Para ambiguidade: pergunte antes de agir.
-
-AÇÕES (use SOMENTE se solicitado):
-<nexus_action>{"type":"add_task","payload":{"title":"...","priority":"alta|média|baixa"}}</nexus_action>
-<nexus_action>{"type":"complete_task","payload":{"title":"..."}}</nexus_action>
-<nexus_action>{"type":"add_goal","payload":{"title":"...","deadline":"YYYY-MM-DD","category":"Desenvolvimento|Finanças|Saúde|Carreira|Outro"}}</nexus_action>
-<nexus_action>{"type":"add_habit","payload":{"name":"...","emoji":"..."}}</nexus_action>
-<nexus_action>{"type":"mark_habit","payload":{"name":"..."}}</nexus_action>
-<nexus_action>{"type":"add_transaction","payload":{"desc":"...","amount":"0","category":"Alimentação|Moradia|Saúde|Lazer|Assinaturas|Transporte|Outro","type":"income|expense"}}</nexus_action>
-<nexus_action>{"type":"add_event","payload":{"title":"...","date":"YYYY-MM-DD","time":"HH:MM","category":"trabalho|pessoal|saúde|outro","recurrence":"none|daily|weekly|monthly"}}</nexus_action>
-
-DADOS ATUAIS: ${buildCtx()}${memCtx}\`;
+  try{
+    const memCtx = await memBuildContext();
+    return 'Você é o NEXUS — agente de IA pessoal space-tech. Responda SEMPRE em português brasileiro.\n'
+      + 'Usuário: '+S.profile.name+(S.profile.profession?' ('+S.profile.profession+')':'')+'. Tom: '+S.profile.commStyle+'.\n'
+      + 'Use **negrito** para destaques. Seja completo sem exagerar.\n\n'
+      + 'ÁREAS PRIORITÁRIAS: 1.Metas 2.Finanças 3.Hábitos 4.Tarefas 5.Calendário\n\n'
+      + 'RESPOSTA: 1)Resumo do que entendeu 2)Resposta 3)Próximo passo (opcional). Para ambiguidade: pergunte antes de agir.\n\n'
+      + 'AÇÕES (use SOMENTE se solicitado):\n'
+      + '<nexus_action>{"type":"add_task","payload":{"title":"...","priority":"alta|média|baixa"}}</nexus_action>\n'
+      + '<nexus_action>{"type":"complete_task","payload":{"title":"..."}}</nexus_action>\n'
+      + '<nexus_action>{"type":"add_goal","payload":{"title":"...","deadline":"YYYY-MM-DD","category":"Desenvolvimento|Finanças|Saúde|Carreira|Outro"}}</nexus_action>\n'
+      + '<nexus_action>{"type":"add_habit","payload":{"name":"...","emoji":"..."}}</nexus_action>\n'
+      + '<nexus_action>{"type":"mark_habit","payload":{"name":"..."}}</nexus_action>\n'
+      + '<nexus_action>{"type":"add_transaction","payload":{"desc":"...","amount":"0","category":"Alimentação|Moradia|Saúde|Lazer|Assinaturas|Transporte|Outro","type":"income|expense"}}</nexus_action>\n'
+      + '<nexus_action>{"type":"add_event","payload":{"title":"...","date":"YYYY-MM-DD","time":"HH:MM","category":"trabalho|pessoal|saúde|outro","recurrence":"none|daily|weekly|monthly"}}</nexus_action>\n\n'
+      + 'DADOS ATUAIS: '+buildCtx()+memCtx;
+  }catch(e){
+    console.warn('NEXUS buildSys fallback:',e);
+    return buildSysBasic();
+  }
 }
 // ═══════════════════════════════════════════════
 // SLASH COMMANDS
@@ -921,7 +943,7 @@ function doSlash(cmd){
   if(cmd==='/financas'){goPanel('finance');return;}
   if(cmd==='/configuracoes'){goPanel('settings');return;}
   if(cmd==='/ajuda'){
-    pushMsg({role:'nexus',tp:'n',text:'**Comandos disponíveis:**\n\n- `/resumo` — Relatório do dia\n- `/metas` — Painel de metas\n- `/calendario` — Calendário mensal\n- `/rotina` — Rotina do dia\n- `/financas` — Finanças\n- `/configuracoes` — Configurações\n- `/foco` — Modo foco\n- `/ajuda` — Esta mensagem\n\nTambém aceito linguagem natural — ex: `"Adicionar tarefa X"` ou `"Agendar reunião dia 20 às 15h"`.'});
+    pushMsg({role:'nexus',tp:'n',text:'**Comandos disponíveis:**\n\n- /resumo — Relatório do dia\n- /metas — Painel de metas\n- /calendario — Calendário mensal\n- /rotina — Rotina do dia\n- /financas — Finanças\n- /configuracoes — Configurações\n- /foco — Modo foco\n- /ajuda — Esta mensagem\n\nDigite / seguido do comando ou converse diretamente comigo.'});
     return;
   }
   if(cmd==='/resumo'){
@@ -1727,54 +1749,142 @@ function getWelcomeMsg(name,isNew){
 }
 
 function switchTab(tab){
-  _authTab=tab;
-  document.getElementById('tab-in').classList.toggle('on',tab==='login');
-  document.getElementById('tab-up').classList.toggle('on',tab==='register');
-  const err=document.getElementById('login-err');err.classList.remove('show');
-  document.getElementById('remember-row').style.display=tab==='recover'?'none':'flex';
-  document.getElementById('forgot-wrap').style.display=tab==='recover'?'none':'block';
-  const sb=document.getElementById('login-submit-btn');
-  if(tab==='login'){
-    document.getElementById('login-sub').textContent='Acesse seu agente pessoal';
-    sb.textContent='Entrar';
-    const savedUsers=getUsers();
-    const accountsHtml=savedUsers.length>0?`<div style="margin-bottom:14px"><div style="font-size:10px;font-family:var(--FM);color:var(--tx3);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px">Contas salvas</div>${savedUsers.map(u=>`<div onclick="quickLogin('${u.id}')" style="display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--bg2);border:1px solid var(--brd2);border-radius:var(--rs);margin-bottom:6px;cursor:pointer;transition:all var(--T)" onmouseover="this.style.borderColor='var(--brd)'" onmouseout="this.style.borderColor='var(--brd2)'"><div style="width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,rgba(0,229,255,.2),rgba(124,131,255,.15));border:1px solid rgba(0,229,255,.3);display:flex;align-items:center;justify-content:center;font-family:var(--FD);font-size:11px;font-weight:700;color:var(--cy)">${getInits(u.name)}</div><div style="flex:1;overflow:hidden"><div style="font-size:13.5px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${u.name}</div><div style="font-size:11px;color:var(--tx3);font-family:var(--FM)">${u.email}</div></div><span style="font-size:11px;color:var(--cy);font-family:var(--FM)">→</span></div>`).join('')}<div style="text-align:center;margin-bottom:14px"><button class="login-link" onclick="showManualLogin()">Entrar com outra conta</button></div></div>`:'';
-    document.getElementById('form-fields').innerHTML=accountsHtml+`<div id="manual-login-fields" style="${savedUsers.length>0?'display:none':''}">
-      <div class="login-fg"><label class="login-fl">E-mail</label><input class="login-inp" id="f-email" type="email" name="email" autocomplete="email" placeholder="seu@email.com"></div>
-      <div class="login-fg"><label class="login-fl">Senha</label><input class="login-inp" id="f-pass" type="password" name="password" autocomplete="current-password" placeholder="••••••••"></div></div>`;
-    if(savedUsers.length>0) document.getElementById('login-submit-btn').style.display='none';
-    else document.getElementById('login-submit-btn').style.display='block';
-  } else if(tab==='register'){
-    document.getElementById('login-sub').textContent='Crie sua conta no NEXUS';
-    sb.textContent='Criar conta';
-    document.getElementById('form-fields').innerHTML=`
-      <div class="login-fg"><label class="login-fl">Nome</label><input class="login-inp" id="f-name" type="text" name="name" autocomplete="name" placeholder="Seu nome"></div>
-      <div class="login-fg"><label class="login-fl">E-mail</label><input class="login-inp" id="f-email" type="email" name="email" autocomplete="email" placeholder="seu@email.com"></div>
-      <div class="login-fg"><label class="login-fl">Senha</label><input class="login-inp" id="f-pass" type="password" name="new-password" autocomplete="new-password" placeholder="Mínimo 6 caracteres"></div>
-      <div class="login-fg"><label class="login-fl">Pergunta secreta</label><input class="login-inp" id="f-hint-q" type="text" placeholder="Ex: Nome do seu primeiro pet?"></div>
-      <div class="login-fg"><label class="login-fl">Resposta secreta</label><input class="login-inp" id="f-hint-a" type="text" placeholder="Resposta"></div>`;
-  } else if(tab==='recover'){
-    document.getElementById('login-sub').textContent='Recuperar acesso';
-    sb.textContent='Verificar';
-    document.getElementById('tab-in').classList.remove('on');
-    document.getElementById('tab-up').classList.remove('on');
-    document.getElementById('form-fields').innerHTML=`
-      <div class="login-fg"><label class="login-fl">E-mail cadastrado</label><input class="login-inp" id="f-email" type="email" placeholder="seu@email.com"></div>
+  _authTab = tab;
+  const err = document.getElementById('login-err');
+  if(err) err.classList.remove('show');
+  const tabIn = document.getElementById('tab-in');
+  const tabUp = document.getElementById('tab-up');
+  if(tabIn) tabIn.classList.toggle('on', tab==='login');
+  if(tabUp) tabUp.classList.toggle('on', tab==='register');
+  const ff = document.getElementById('form-fields');
+  if(!ff) return;
+
+  if(tab === 'login'){
+    document.getElementById('login-sub').textContent = 'Acesse seu agente pessoal';
+    ff.innerHTML = `
+      <div class="login-fg">
+        <label class="login-fl">E-mail</label>
+        <input class="login-inp" id="f-email" type="email" name="email"
+          autocomplete="email" placeholder="seu@email.com"
+          onkeydown="if(event.key==='Enter')document.getElementById('f-pass').focus()">
+      </div>
+      <div class="login-fg">
+        <label class="login-fl">Senha</label>
+        <div class="pass-wrap">
+          <input class="login-inp" id="f-pass" type="password" name="password"
+            autocomplete="current-password" placeholder="••••••••"
+            onkeydown="if(event.key==='Enter')handleAuth()">
+          <button class="pass-toggle" type="button" onclick="togglePass('f-pass','eye-login')" title="Ver/ocultar senha">
+            <span id="eye-login">👁</span>
+          </button>
+        </div>
+      </div>
+      <div class="login-row" style="margin-bottom:18px">
+        <div class="login-check" id="remember-chk" onclick="toggleRemember()"></div>
+        <span class="login-check-lbl" onclick="toggleRemember()">Lembrar minha conta</span>
+      </div>
+      <button class="login-btn" onclick="handleAuth()">Entrar</button>
+      <div style="text-align:center;margin-top:12px">
+        <button class="login-link" onclick="switchTab('recover')">Esqueci minha senha</button>
+      </div>`;
+
+  } else if(tab === 'register'){
+    document.getElementById('login-sub').textContent = 'Crie sua conta no NEXUS';
+    ff.innerHTML = `
+      <div class="login-fg">
+        <label class="login-fl">Nome</label>
+        <input class="login-inp" id="f-name" type="text" name="name"
+          autocomplete="name" placeholder="Seu nome">
+      </div>
+      <div class="login-fg">
+        <label class="login-fl">E-mail</label>
+        <input class="login-inp" id="f-email" type="email" name="email"
+          autocomplete="email" placeholder="seu@email.com">
+      </div>
+      <div class="login-fg">
+        <label class="login-fl">Senha</label>
+        <div class="pass-wrap">
+          <input class="login-inp" id="f-pass" type="password" name="new-password"
+            autocomplete="new-password" placeholder="Mínimo 6 caracteres">
+          <button class="pass-toggle" type="button" onclick="togglePass('f-pass','eye-reg1')" title="Ver/ocultar senha">
+            <span id="eye-reg1">👁</span>
+          </button>
+        </div>
+      </div>
+      <div class="login-fg">
+        <label class="login-fl">Repetir senha</label>
+        <div class="pass-wrap">
+          <input class="login-inp" id="f-pass2" type="password" name="new-password-2"
+            autocomplete="new-password" placeholder="Confirme a senha"
+            onkeydown="if(event.key==='Enter')handleAuth()">
+          <button class="pass-toggle" type="button" onclick="togglePass('f-pass2','eye-reg2')" title="Ver/ocultar senha">
+            <span id="eye-reg2">👁</span>
+          </button>
+        </div>
+      </div>
+      <div class="login-fg">
+        <label class="login-fl">Pergunta secreta (recuperação)</label>
+        <input class="login-inp" id="f-hint-q" type="text" placeholder="Ex: Nome do seu primeiro pet?">
+      </div>
+      <div class="login-fg">
+        <label class="login-fl">Resposta</label>
+        <input class="login-inp" id="f-hint-a" type="text" placeholder="Resposta secreta"
+          onkeydown="if(event.key==='Enter')handleAuth()">
+      </div>
+      <div class="login-row" style="margin-bottom:18px">
+        <div class="login-check" id="remember-chk" onclick="toggleRemember()"></div>
+        <span class="login-check-lbl" onclick="toggleRemember()">Lembrar minha conta</span>
+      </div>
+      <button class="login-btn" onclick="handleAuth()">Criar conta</button>`;
+
+  } else if(tab === 'recover'){
+    document.getElementById('login-sub').textContent = 'Recuperar acesso';
+    ff.innerHTML = `
+      <div class="login-fg">
+        <label class="login-fl">E-mail cadastrado</label>
+        <input class="login-inp" id="f-email" type="email" placeholder="seu@email.com"
+          onblur="loadRecoverHint(this.value)">
+      </div>
       <div id="hint-q-wrap" style="display:none;margin-bottom:12px;padding:12px;background:rgba(0,229,255,.05);border-radius:8px;border:1px solid var(--brd2);font-size:13px;color:var(--tx2)"></div>
-      <div class="login-fg" id="hint-a-wrap" style="display:none"><label class="login-fl">Resposta secreta</label><input class="login-inp" id="f-hint-a" type="text" placeholder="Sua resposta"></div>
-      <div class="login-fg" id="new-pass-wrap" style="display:none"><label class="login-fl">Nova senha</label><input class="login-inp" id="f-newpass" type="password" placeholder="Nova senha (mín. 6)"></div>`;
-    setTimeout(()=>{
-      const fe=document.getElementById('f-email');
-      if(fe) fe.addEventListener('blur',function(){
-        const users=getUsers(),u=users.find(x=>x.email===this.value.trim());
-        const qw=document.getElementById('hint-q-wrap'),aw=document.getElementById('hint-a-wrap'),np=document.getElementById('new-pass-wrap');
-        if(u&&u.hintQ){qw.style.display='block';qw.textContent='🔑 '+u.hintQ;aw.style.display='block';np.style.display='block';}
-        else{qw.style.display='none';aw.style.display='none';np.style.display='none';}
-      });
-    },50);
+      <div class="login-fg" id="hint-a-wrap" style="display:none">
+        <label class="login-fl">Resposta secreta</label>
+        <input class="login-inp" id="f-hint-a" type="text" placeholder="Sua resposta">
+      </div>
+      <div class="login-fg" id="new-pass-wrap" style="display:none">
+        <label class="login-fl">Nova senha</label>
+        <div class="pass-wrap">
+          <input class="login-inp" id="f-newpass" type="password" placeholder="Nova senha (mín. 6)"
+            onkeydown="if(event.key==='Enter')handleAuth()">
+          <button class="pass-toggle" type="button" onclick="togglePass('f-newpass','eye-rec')" title="Ver/ocultar senha">
+            <span id="eye-rec">👁</span>
+          </button>
+        </div>
+      </div>
+      <button class="login-btn" onclick="handleAuth()">Verificar e recuperar</button>
+      <div style="text-align:center;margin-top:12px">
+        <button class="login-link" onclick="switchTab('login')">← Voltar ao login</button>
+      </div>`;
   }
 }
 
+// Toggle password visibility
+function togglePass(inputId, iconId){
+  const inp  = document.getElementById(inputId);
+  const icon = document.getElementById(iconId);
+  if(!inp) return;
+  const isHidden = inp.type === 'password';
+  inp.type  = isHidden ? 'text' : 'password';
+  if(icon) icon.textContent = isHidden ? '🙈' : '👁';
+}
+function loadRecoverHint(email){
+  const u = getUsers().find(x => x.email === email.trim());
+  const qw=document.getElementById('hint-q-wrap');
+  const aw=document.getElementById('hint-a-wrap');
+  const np=document.getElementById('new-pass-wrap');
+  if(!qw||!aw||!np) return;
+  if(u&&u.hintQ){ qw.style.display='block'; qw.textContent='🔑 '+u.hintQ; aw.style.display='block'; np.style.display='block'; }
+  else { qw.style.display='none'; aw.style.display='none'; np.style.display='none'; }
+}
 function toggleRemember(){_remember=!_remember;document.getElementById('remember-chk').classList.toggle('on',_remember);}
 function showErr(msg){const el=document.getElementById('login-err');el.textContent=msg;el.classList.add('show');}
 
@@ -1792,10 +1902,12 @@ function handleAuth(){
     const name=(document.getElementById('f-name')||{}).value?.trim();
     const email=(document.getElementById('f-email')||{}).value?.trim();
     const pass=(document.getElementById('f-pass')||{}).value;
+    const pass2=(document.getElementById('f-pass2')||{}).value;
     const hQ=(document.getElementById('f-hint-q')||{}).value?.trim();
     const hA=(document.getElementById('f-hint-a')||{}).value?.trim();
     if(!name||!email||!pass){showErr('Preencha nome, e-mail e senha.');return;}
     if(pass.length<6){showErr('Senha muito curta. Mínimo 6 caracteres.');return;}
+    if(pass2 && pass!==pass2){showErr('As senhas não coincidem. Verifique.');return;}
     const users=getUsers();
     if(users.find(u=>u.email===email)){showErr('E-mail já cadastrado. Faça login.');return;}
     const nu={id:Date.now(),name,email,pwd:hashPwd(pass),hintQ:hQ||'',hintA:hA?hashPwd(hA.toLowerCase()):'',createdAt:new Date().toISOString()};
@@ -1870,21 +1982,9 @@ function doLogin(user, isNew, isAuto){
   }, delay);
 }
 
-function quickLogin(userId){
-  const users=getUsers(), user=users.find(u=>u.id==userId);
-  if(!user){toast('Conta não encontrada.');return;}
-  // Ask for password to confirm identity
-  const pass=prompt(`Senha de ${user.name}:`);
-  if(!pass) return;
-  if(user.pwd!==hashPwd(pass)){showErr('Senha incorreta.');return;}
-  doLogin(user, false, false);
-}
+// quickLogin replaced by handleQuickAuth (no prompt)
 
-function showManualLogin(){
-  const mf=document.getElementById('manual-login-fields');
-  if(mf) mf.style.display='block';
-  document.getElementById('login-submit-btn').style.display='block';
-}
+
 
 function enterGuest(){
   _currentUser={name:'Convidado',email:'',isGuest:true};
