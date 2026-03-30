@@ -644,6 +644,7 @@ const TODAY = new Date();
 const todayStr = () => { const d=new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; };
 const clock = () => new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
 const fmt = v => new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(v);
+const escHtml = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 const pct = g => g.sub.length ? Math.round(g.sub.filter(s=>s.d).length/g.sub.length*100) : 0;
 const getInits = n => n.trim().split(' ').slice(0,2).map(x=>x[0]||'').join('').toUpperCase()||'N';
 function offDay(n){const d=new Date(TODAY);d.setDate(d.getDate()+n);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
@@ -966,7 +967,7 @@ function doSlash(cmd){
       text:`**Relatório — ${new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'})}**`,
       card:{title:'STATUS ATUAL',
         stats:[{val:`${tdone()}/${S.tasks.length}`,lbl:'Tarefas',cls:'hi'},{val:`${hdone()}/${S.habits.length}`,lbl:'Hábitos',cls:'ok'},{val:fmt(bal()),lbl:'Saldo',cls:overLim()?'wn':'hi'},{val:`${todEvts().length}`,lbl:'Hoje',cls:'hi'}],
-        rows:[{label:'Tarefas',pct:tp,cls:tp>60?'g':''},{label:'Hábitos',pct:hp,cls:hp>60?'g':''},...S.goals.map(g=>({label:g.title.slice(0,32)+'…',pct:pct(g),cls:pct(g)<40?'w':''})),{label:'Meta economia',pct:Math.min(100,Math.round(Math.max(0,bal())/SAVINGS_GOAL*100)),cls:'g'}]}});
+        rows:[{label:'Tarefas',pct:tp,cls:tp>60?'g':''},{label:'Hábitos',pct:hp,cls:hp>60?'g':''},...S.goals.map(g=>({label:escHtml(g.title.slice(0,32))+'…',pct:pct(g),cls:pct(g)<40?'w':''})),{label:'Meta economia',pct:Math.min(100,Math.round(Math.max(0,bal())/SAVINGS_GOAL*100)),cls:'g'}]}});
   }
 }
 
@@ -1072,12 +1073,12 @@ function renderGoals(el){
         const pr=pct(g),ex=S.expandedGoal===g.id;
         return `<div class="gc">
           <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:4px">
-            <div style="flex:1;overflow:hidden"><div class="gn2">${g.title}</div><div class="gm">${g.category} · ${g.deadline}</div></div>
+            <div style="flex:1;overflow:hidden"><div class="gn2">${escHtml(g.title)}</div><div class="gm">${escHtml(g.category)} · ${g.deadline}</div></div>
             <span class="gp">${pr}%</span>
           </div>
           <div class="pbar" style="margin-bottom:10px"><div class="pfill ${pr<40?'w':pr>70?'g':''}" style="width:${pr}%"></div></div>
-          ${ex?`<div class="slbl">Sub-tarefas</div>${g.sub.map(s=>`<div class="st3" onclick="toggleSub(${g.id},${s.id})"><div class="chk ${s.d?'on':''}">${s.d?'✓':''}</div><span class="stx ${s.d?'dn':''}">${s.t}</span></div>`).join('')}
-            ${g.ci.length?`<div class="slbl" style="margin-top:12px">Check-ins</div>${g.ci.map(c=>`<div style="font-size:13px;color:var(--tx2);padding:8px 12px;background:rgba(0,229,255,.05);border-radius:8px;margin-bottom:6px;border-left:2px solid var(--cy)"><span style="font-family:var(--FM);color:var(--cy);font-size:11px;margin-right:8px">${c.date}</span>${c.note}</div>`).join('')}`:''}
+          ${ex?`<div class="slbl">Sub-tarefas</div>${g.sub.map(s=>`<div class="st3" onclick="toggleSub(${g.id},${s.id})"><div class="chk ${s.d?'on':''}">${s.d?'✓':''}</div><span class="stx ${s.d?'dn':''}">${escHtml(s.t)}</span></div>`).join('')}
+            ${g.ci.length?`<div class="slbl" style="margin-top:12px">Check-ins</div>${g.ci.map(c=>`<div style="font-size:13px;color:var(--tx2);padding:8px 12px;background:rgba(0,229,255,.05);border-radius:8px;margin-bottom:6px;border-left:2px solid var(--cy)"><span style="font-family:var(--FM);color:var(--cy);font-size:11px;margin-right:8px">${c.date}</span>${escHtml(c.note)}</div>`).join('')}`:''}
           `:''}
           <button class="exp-btn" onclick="toggleGoalExp(${g.id})">${ex?'▲ recolher':'▼ ver detalhes'}</button>
         </div>`;
@@ -1121,7 +1122,7 @@ function renderCalendar(el){
     const evs=getEvDay(sd.y,sd.m,sd.d);
     const lbl=new Date(sd.y,sd.m,sd.d).toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'});
     return `<div class="day-det"><div class="day-det-hd"><span class="day-det-t">${lbl}</span><button class="btn sm ghost" onclick="openModal('event','${ds(sd.y,sd.m,sd.d)}')">+ Evento</button></div>
-    ${evs.length?evs.map(e=>`<div class="ev-item"><div class="ev-bar" style="background:${CAT_COL[e.category]||'var(--tx3)'}"></div><div class="ev-info"><div class="ev-tt">${e.title}</div><div class="ev-mt">${e.time}${e.recurrence!=='none'?`<span class="rec-b">↺ ${REC_LBL[e.recurrence]}</span>`:''}</div></div><span class="ev-bg" style="${CAT_TX[e.category]||''};background:${CAT_BG2[e.category]||'transparent'};border-color:transparent">${e.category}</span></div>`).join(''):'<div class="empty" style="padding:14px 0"><div class="ei">🗓</div><p>Nenhum evento</p></div>'}
+    ${evs.length?evs.map(e=>`<div class="ev-item"><div class="ev-bar" style="background:${CAT_COL[e.category]||'var(--tx3)'}"></div><div class="ev-info"><div class="ev-tt">${escHtml(e.title)}</div><div class="ev-mt">${e.time}${e.recurrence!=='none'?`<span class="rec-b">↺ ${REC_LBL[e.recurrence]}</span>`:''}</div></div><span class="ev-bg" style="${CAT_TX[e.category]||''};background:${CAT_BG2[e.category]||'transparent'};border-color:transparent">${e.category}</span></div>`).join(''):'<div class="empty" style="padding:14px 0"><div class="ei">🗓</div><p>Nenhum evento</p></div>'}
     </div>`;
   })():'';
 
@@ -1146,7 +1147,7 @@ function renderCalendar(el){
       </div>
       ${selHtml}
       <div class="slbl" style="margin-top:16px">Próximos Eventos</div>
-      ${S.events.filter(e=>e.recurrence==='none'&&e.date>=todayStr()).sort((a,b)=>a.date.localeCompare(b.date)||a.time.localeCompare(b.time)).slice(0,4).map(e=>`<div class="ev-item"><div class="ev-bar" style="background:${CAT_COL[e.category]||'var(--tx3)'}"></div><div class="ev-info"><div class="ev-tt">${e.title}</div><div class="ev-mt">${new Date(e.date).toLocaleDateString('pt-BR',{day:'numeric',month:'short'})} · ${e.time}</div></div><span class="ev-bg" style="${CAT_TX[e.category]||''};background:${CAT_BG2[e.category]||'transparent'};border-color:transparent">${e.category}</span></div>`).join('')}
+      ${S.events.filter(e=>e.recurrence==='none'&&e.date>=todayStr()).sort((a,b)=>a.date.localeCompare(b.date)||a.time.localeCompare(b.time)).slice(0,4).map(e=>`<div class="ev-item"><div class="ev-bar" style="background:${CAT_COL[e.category]||'var(--tx3)'}"></div><div class="ev-info"><div class="ev-tt">${escHtml(e.title)}</div><div class="ev-mt">${new Date(e.date).toLocaleDateString('pt-BR',{day:'numeric',month:'short'})} · ${e.time}</div></div><span class="ev-bg" style="${CAT_TX[e.category]||''};background:${CAT_BG2[e.category]||'transparent'};border-color:transparent">${e.category}</span></div>`).join('')}
     </div>
   </div>`;
 }
@@ -1229,7 +1230,7 @@ function renderFinance(el){
         <div style="font-size:11px;color:var(--tx3);margin-top:6px;font-family:var(--FM)">${fmt(Math.max(0,b))} / ${fmt(SAVINGS_GOAL)}</div>
       </div>
       <div class="slbl">Transações</div>
-      <div class="card">${[...S.txns].reverse().slice(0,7).map(t=>`<div class="txrow"><div class="txic" style="background:${CATBG[t.cat]||CATBG['Outro']}">${CATICONS[t.cat]||'📦'}</div><div class="txin"><div class="txn">${t.desc}</div><div class="txd">${t.date} · ${t.cat}</div></div><div class="txv ${t.type}" style="${pm?'filter:blur(5px)':''}">${t.type==='income'?'+':'-'}${fmt(t.amount)}</div></div>`).join('')}</div>
+      <div class="card">${[...S.txns].reverse().slice(0,7).map(t=>`<div class="txrow"><div class="txic" style="background:${CATBG[t.cat]||CATBG['Outro']}">${CATICONS[t.cat]||'📦'}</div><div class="txin"><div class="txn">${escHtml(t.desc)}</div><div class="txd">${t.date} · ${t.cat}</div></div><div class="txv ${t.type}" style="${pm?'filter:blur(5px)':''}">${t.type==='income'?'+':'-'}${fmt(t.amount)}</div></div>`).join('')}</div>
     </div>
   </div>`;
 }
@@ -1243,16 +1244,16 @@ function renderSettings(el){
     <div class="pbody">
       <div class="pf-hero">
         <div class="pf-av" onclick="openModal('editProfile')">${getInits(S.profile.name)}</div>
-        <div class="pf-nm">${S.profile.name}</div>
-        ${S.profile.profession?`<div class="pf-ro">${S.profile.profession}</div>`:''}
+        <div class="pf-nm">${escHtml(S.profile.name)}</div>
+        ${S.profile.profession?`<div class="pf-ro">${escHtml(S.profile.profession)}</div>`:''}
         <button class="btn sm" onclick="openModal('editProfile')">Editar Perfil</button>
       </div>
       ${(S.profile.lifeGoalShort||S.profile.lifeGoalMid||S.profile.lifeGoalLong)?`
       <div class="card">
         <div class="slbl">Metas de Vida</div>
-        ${S.profile.lifeGoalShort?`<div style="margin-bottom:8px"><div style="font-size:10px;font-family:var(--FM);color:var(--tx3);letter-spacing:1px;text-transform:uppercase;margin-bottom:3px">Curto prazo</div><div style="font-size:13.5px">${S.profile.lifeGoalShort}</div></div>`:''}
-        ${S.profile.lifeGoalMid?`<div style="margin-bottom:8px"><div style="font-size:10px;font-family:var(--FM);color:var(--tx3);letter-spacing:1px;text-transform:uppercase;margin-bottom:3px">Médio prazo</div><div style="font-size:13.5px">${S.profile.lifeGoalMid}</div></div>`:''}
-        ${S.profile.lifeGoalLong?`<div><div style="font-size:10px;font-family:var(--FM);color:var(--tx3);letter-spacing:1px;text-transform:uppercase;margin-bottom:3px">Longo prazo</div><div style="font-size:13.5px">${S.profile.lifeGoalLong}</div></div>`:''}
+        ${S.profile.lifeGoalShort?`<div style="margin-bottom:8px"><div style="font-size:10px;font-family:var(--FM);color:var(--tx3);letter-spacing:1px;text-transform:uppercase;margin-bottom:3px">Curto prazo</div><div style="font-size:13.5px">${escHtml(S.profile.lifeGoalShort)}</div></div>`:''}
+        ${S.profile.lifeGoalMid?`<div style="margin-bottom:8px"><div style="font-size:10px;font-family:var(--FM);color:var(--tx3);letter-spacing:1px;text-transform:uppercase;margin-bottom:3px">Médio prazo</div><div style="font-size:13.5px">${escHtml(S.profile.lifeGoalMid)}</div></div>`:''}
+        ${S.profile.lifeGoalLong?`<div><div style="font-size:10px;font-family:var(--FM);color:var(--tx3);letter-spacing:1px;text-transform:uppercase;margin-bottom:3px">Longo prazo</div><div style="font-size:13.5px">${escHtml(S.profile.lifeGoalLong)}</div></div>`:''}
       </div>`:''}
       <div class="slbl">Estilo de Comunicação</div>
       <div class="card">
@@ -1266,7 +1267,7 @@ function renderSettings(el){
         <div class="srow" style="padding-bottom:8px"><div class="sr-ic" style="background:rgba(124,131,255,.08)">🌙</div><div class="sr-inf"><div class="sr-t">Silêncio noturno</div><div class="sr-s">${S.notif.silentStart} – ${S.notif.silentEnd}</div></div><button class="btn sm ghost" onclick="openModal('silent')">Editar</button></div>
       </div>
       <div class="slbl">Integrações</div>
-      ${S.integs.map(i=>`<div class="intg"><div class="intg-ic">${i.icon}</div><div class="intg-inf"><div class="intg-nm">${i.name}</div><div class="intg-ds">${i.desc}</div></div><div class="intg-st ${i.connected?'conn':'disc'}" onclick="togInteg('${i.id}')">${i.connected?'Conectado':'Conectar'}</div></div>`).join('')}
+      ${S.integs.map(i=>`<div class="intg"><div class="intg-ic">${i.icon}</div><div class="intg-inf"><div class="intg-nm">${escHtml(i.name)}</div><div class="intg-ds">${escHtml(i.desc)}</div></div><div class="intg-st ${i.connected?'conn':'disc'}" onclick="togInteg('${i.id}')">${i.connected?'Conectado':'Conectar'}</div></div>`).join('')}
       <div class="slbl">Relatórios</div>
       <div class="card">
         <div class="srow" style="padding-top:8px;padding-bottom:8px"><div class="sr-ic" style="background:rgba(0,229,255,.08)">⚡</div><div class="sr-inf"><div class="sr-t">Gerar relatório agora</div><div class="sr-s">Abre no Chat com métricas</div></div><button class="btn sm" onclick="genReport()">Gerar</button></div>
@@ -1295,7 +1296,7 @@ function genReport(){
   goPanel('chat');
   pushMsg({role:'nexus',tp:'n',text:`**Relatório — ${mn}**\n\nGerado para **${S.profile.name}**.`,
     card:{title:'RELATÓRIO MENSAL',stats:[{val:`${tdone()}/${S.tasks.length}`,lbl:'Tarefas',cls:'hi'},{val:`${hdone()}/${S.habits.length}`,lbl:'Hábitos',cls:'ok'},{val:fmt(bal()),lbl:'Saldo',cls:overLim()?'wn':'hi'},{val:`${S.goals.length}`,lbl:'Metas',cls:'hi'}],
-      rows:[{label:'Tarefas',pct:tp,cls:tp>60?'g':''},{label:'Hábitos',pct:hp,cls:hp>60?'g':''},{label:'Meta economia',pct:Math.min(100,Math.round(Math.max(0,bal())/SAVINGS_GOAL*100)),cls:'g'},...S.goals.map(g=>({label:g.title.slice(0,32)+'…',pct:pct(g),cls:pct(g)<40?'w':''}))]}});
+      rows:[{label:'Tarefas',pct:tp,cls:tp>60?'g':''},{label:'Hábitos',pct:hp,cls:hp>60?'g':''},{label:'Meta economia',pct:Math.min(100,Math.round(Math.max(0,bal())/SAVINGS_GOAL*100)),cls:'g'},...S.goals.map(g=>({label:escHtml(g.title.slice(0,32))+'…',pct:pct(g),cls:pct(g)<40?'w':''}))]}});
   toast('Relatório gerado no Chat!');
 }
 // ═══════════════════════════════════════════════
@@ -1954,7 +1955,8 @@ async function handleAuth(){
 function doLogin(user, isNew, isAuto){
   _currentUser=user;
   // Always save session (persistent by default)
-  const sessionExpiry = user.sessionExpiry || null; // null = never
+  const DEFAULT_EXPIRY = 30*24*60*60*1000; // 30 days default
+  const sessionExpiry = user.sessionExpiry !== undefined ? user.sessionExpiry : DEFAULT_EXPIRY;
   const expiresAt = sessionExpiry ? Date.now() + sessionExpiry : null;
   saveSession({userId:user.id, email:user.email, name:user.name, loginTime:Date.now(), expiresAt});
   // Load saved user data
@@ -1967,8 +1969,8 @@ function doLogin(user, isNew, isAuto){
     ws.classList.remove('hidden');
     document.getElementById('welcome-av').textContent=getInits(user.name);
     document.getElementById('welcome-greeting').textContent=getGreeting();
-    document.getElementById('welcome-name').textContent=user.name;
-    document.getElementById('welcome-msg').textContent=getWelcomeMsg(user.name,isNew);
+    document.getElementById('welcome-name').textContent=escHtml(user.name);
+    document.getElementById('welcome-msg').textContent=getWelcomeMsg(escHtml(user.name),isNew);
   }
   const delay = isAuto ? 0 : 2200;
   setTimeout(()=>{
@@ -2110,10 +2112,10 @@ function scheduleReminders(){
 // SESSION EXPIRY HELPERS
 // ═══════════════════════════════════════════════
 const SESSION_OPTIONS=[
-  {label:'Nunca',value:null},
   {label:'7 dias',value:7*24*60*60*1000},
-  {label:'30 dias',value:30*24*60*60*1000},
+  {label:'30 dias (padrão)',value:30*24*60*60*1000},
   {label:'90 dias',value:90*24*60*60*1000},
+  {label:'Nunca',value:null},
 ];
 function setSessionExpiry(ms){
   if(!_currentUser) return;
