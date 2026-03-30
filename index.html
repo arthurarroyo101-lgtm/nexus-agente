@@ -5,6 +5,19 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>NEXUS — Agente Pessoal</title>
 
+<!-- Content Security Policy -->
+<meta http-equiv="Content-Security-Policy" content="
+  default-src 'self';
+  script-src 'self' 'unsafe-inline';
+  style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+  font-src 'self' https://fonts.gstatic.com;
+  connect-src 'self' https://api.anthropic.com;
+  img-src 'self' data:;
+  worker-src 'self';
+  manifest-src 'self';
+  frame-ancestors 'none';
+">
+
 <!-- PWA -->
 <link rel="manifest" href="./manifest.json">
 <meta name="theme-color" content="#00e5ff">
@@ -1738,7 +1751,13 @@ function saveUsers(u){localStorage.setItem(LS_USERS,JSON.stringify(u));}
 function getSession(){try{return JSON.parse(localStorage.getItem(LS_SESSION)||'null');}catch{return null;}}
 function saveSession(u){localStorage.setItem(LS_SESSION,JSON.stringify(u));}
 function clearSession(){localStorage.removeItem(LS_SESSION);}
-function hashPwd(s){let h=0;for(let i=0;i<s.length;i++){h=Math.imul(31,h)+s.charCodeAt(i)|0;}return h.toString(36);}
+// SHA-256 via Web Crypto API (async) — used for all new passwords
+async function hashPwd(s){
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+// Sync legacy hash — only used to migrate old accounts on first login
+function hashPwdLegacy(s){let h=0;for(let i=0;i<s.length;i++){h=Math.imul(31,h)+s.charCodeAt(i)|0;}return h.toString(36);}
 function getGreeting(){const h=new Date().getHours();return h<12?'BOM DIA':h<18?'BOA TARDE':'BOA NOITE';}
 function getWelcomeMsg(name,isNew){
   const h=new Date().getHours();
@@ -1888,7 +1907,7 @@ function loadRecoverHint(email){
 function toggleRemember(){_remember=!_remember;document.getElementById('remember-chk').classList.toggle('on',_remember);}
 function showErr(msg){const el=document.getElementById('login-err');el.textContent=msg;el.classList.add('show');}
 
-function handleAuth(){
+async function handleAuth(){
   const tab=_authTab;
   if(tab==='login'){
     const email=(document.getElementById('f-email')||{}).value?.trim();
@@ -1896,7 +1915,11 @@ function handleAuth(){
     if(!email||!pass){showErr('Preencha e-mail e senha.');return;}
     const users=getUsers(),user=users.find(u=>u.email===email);
     if(!user){showErr('E-mail não encontrado. Crie uma conta.');return;}
-    if(user.pwd!==hashPwd(pass)){showErr('Senha incorreta. Tente novamente.');return;}
+    const hashed = await hashPwd(pass);
+    // Support legacy accounts (old hash) — migrate on successful login
+    const legacyHash = hashPwdLegacy(pass);
+    if(user.pwd!==hashed && user.pwd!==legacyHash){showErr('Senha incorreta. Tente novamente.');return;}
+    if(user.pwd===legacyHash){ user.pwd=hashed; const us=getUsers(); const idx=us.findIndex(u=>u.id===user.id); if(idx>=0){us[idx].pwd=hashed;saveUsers(us);} }
     doLogin(user,false);
   } else if(tab==='register'){
     const name=(document.getElementById('f-name')||{}).value?.trim();
@@ -1910,7 +1933,8 @@ function handleAuth(){
     if(pass2 && pass!==pass2){showErr('As senhas não coincidem. Verifique.');return;}
     const users=getUsers();
     if(users.find(u=>u.email===email)){showErr('E-mail já cadastrado. Faça login.');return;}
-    const nu={id:Date.now(),name,email,pwd:hashPwd(pass),hintQ:hQ||'',hintA:hA?hashPwd(hA.toLowerCase()):'',createdAt:new Date().toISOString()};
+    const [pwdHash, hintHash] = await Promise.all([hashPwd(pass), hA?hashPwd(hA.toLowerCase()):Promise.resolve('')]);
+    const nu={id:Date.now(),name,email,pwd:pwdHash,hintQ:hQ||'',hintA:hintHash,createdAt:new Date().toISOString()};
     users.push(nu);saveUsers(users);doLogin(nu,true);
   } else if(tab==='recover'){
     const email=(document.getElementById('f-email')||{}).value?.trim();
@@ -1919,9 +1943,10 @@ function handleAuth(){
     if(!email){showErr('Informe seu e-mail.');return;}
     const users=getUsers(),idx=users.findIndex(u=>u.email===email);
     if(idx===-1){showErr('E-mail não encontrado.');return;}
-    if(users[idx].hintA&&users[idx].hintA!==hashPwd(hA.toLowerCase())){showErr('Resposta incorreta.');return;}
+    const hintCheck = hA ? await hashPwd(hA.toLowerCase()) : '';
+    if(users[idx].hintA&&users[idx].hintA!==hintCheck&&users[idx].hintA!==hashPwdLegacy(hA.toLowerCase())){showErr('Resposta incorreta.');return;}
     if(!np||np.length<6){showErr('Nova senha: mínimo 6 caracteres.');return;}
-    users[idx].pwd=hashPwd(np);saveUsers(users);
+    users[idx].pwd=await hashPwd(np);saveUsers(users);
     showErr('');toast('Senha atualizada! Faça login.');switchTab('login');
   }
 }
