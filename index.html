@@ -401,73 +401,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--tx);font-
 .pin-k:active{transform:scale(.95)}
 .pin-k.del{font-size:12px;color:var(--tx3)}
 
-/* ══ LOGIN MODAL ══════════════════════════════════════════ */
-/* ══ LOGIN CSS ══════════════════════════════════════════ */
-.login-backdrop{position:fixed;inset:0;z-index:600;background:rgba(5,12,24,.96);backdrop-filter:blur(20px);display:flex;align-items:center;justify-content:center;padding:20px}
-.login-backdrop.hidden{display:none}
-.login-box{background:var(--bg1);border:1px solid var(--brd);border-radius:var(--r);padding:36px 28px 28px;width:100%;max-width:420px;max-height:92vh;overflow-y:auto;animation:lboxin .35s cubic-bezier(.34,1.4,.64,1);scrollbar-width:thin;scrollbar-color:var(--bg3) transparent}
-@keyframes lboxin{from{transform:translateY(24px) scale(.97);opacity:0}to{transform:translateY(0) scale(1);opacity:1}}
-.login-brand{display:flex;flex-direction:column;align-items:center;gap:10px;margin-bottom:32px}
-.login-orb{width:58px;height:58px;border-radius:50%;background:radial-gradient(circle,rgba(0,229,255,.22),transparent);border:2px solid rgba(0,229,255,.4);display:flex;align-items:center;justify-content:center;position:relative;flex-shrink:0}
-.login-orb::before{content:'';position:absolute;inset:0;border-radius:50%;border:1.5px solid rgba(0,229,255,.3);animation:orbsp 9s linear infinite}
-.login-orb-c{width:9px;height:9px;border-radius:50%;background:var(--cy);box-shadow:0 0 12px var(--cy);animation:orbp 2.5s ease-in-out infinite;z-index:1}
-.login-title{font-family:var(--FD);font-size:24px;font-weight:800;letter-spacing:6px;text-transform:uppercase;color:var(--tx);line-height:1}
-.login-title em{color:var(--cy);font-style:normal;text-shadow:0 0 14px var(--cg)}
-.login-sub{font-size:12px;color:var(--tx3);font-family:var(--FM);letter-spacing:.8px}
-.login-tabs{display:flex;background:var(--bg2);border-radius:var(--rs);padding:3px;margin-bottom:24px;border:1px solid var(--brd2);gap:3px}
-.ltab{flex:1;padding:9px;border-radius:6px;background:transparent;border:none;color:var(--tx3);font-size:13px;font-weight:500;font-family:var(--FB);cursor:pointer;transition:all var(--T)}
-.ltab.on{background:var(--bg1);color:var(--cy);border:1px solid var(--brd);box-shadow:0 2px 8px rgba(0,0,0,.2)}
-.login-fg{margin-bottom:16px}
-.login-fl{font-size:10px;font-weight:700;color:var(--tx3);letter-spacing:1.5px;text-transform:uppercase;font-family:var(--FM);margin-bottom:7px;display:block}
-.login-inp-wrap{position:relative;display:flex;align-items:center}
-.login-inp{width:100%;background:var(--bg2);border:1px solid var(--brd2);border-radius:var(--rs);padding:12px 16px;font-size:14px;color:var(--tx);font-family:var(--FB);outline:none;transition:border-color var(--T),box-shadow var(--T)}
-.login-inp:focus{border-color:rgba(0,229,255,.42);box-shadow:0 0 0 3px rgba(0,229,255,.07)}
-.login-inp::placeholder{color:var(--tx3);font-size:13px}
-.login-inp.has-eye{padding-right:46px}
-.eye-btn{position:absolute;right:0;top:0;bottom:0;width:44px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--tx3);background:none;border:none;font-size:18px;transition:color var(--T);flex-shrink:0}
-.eye-btn:hover{color:var(--cy)}
-.login-remember{display:flex;align-items:center;gap:10px;margin-bottom:20px;cursor:pointer;user-select:none}
-.remember-box{width:20px;height:20px;border-radius:5px;border:1.5px solid var(--brd);background:transparent;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all var(--T);font-size:11px;font-weight:700}
-.remember-box.on{background:rgba(0,229,255,.15);border-color:var(--cy);color:var(--cy)}
-.remember-lbl{font-size:13px;color:var(--tx2)}
-.login-btn{width:100%;padding:13px;background:linear-gradient(135deg,rgba(0,229,255,.22),rgba(0,180,255,.14));border:1px solid rgba(0,229,255,.4);border-radius:var(--rs);color:var(--cy);font-size:15px;font-weight:600;font-family:var(--FB);cursor:pointer;transition:all var(--T);box-shadow:0 0 20px rgba(0,229,255,.12);margin-bottom:12px}
-.login-btn:hover{background:linear-gradient(135deg,rgba(0,229,255,.32),rgba(0,180,255,.22));box-shadow:0 0 28px rgba(0,229,255,.25);transform:translateY(-1px)}
-.login-link{background:none;border:none;color:var(--cy);font-size:12px;font-family:var(--FM);cursor:pointer;text-decoration:underline;padding:0;transition:opacity var(--T)}
-.login-link:hover{opacity:.7}
-.login-err{background:rgba(255,82,82,.08);border:1px solid rgba(255,82,82,.22);border-radius:var(--rs);padding:10px 14px;font-size:13px;color:var(--rd);margin-bottom:16px;display:none;align-items:center;gap:8px}
-.login-err.show{display:flex}
-.login-divider{display:flex;align-items:center;gap:10px;margin:16px 0;color:var(--tx3);font-size:11px;font-family:var(--FM)}
-.login-divider::before,.login-divider::after{content:'';flex:1;height:1px;background:var(--brd2)}
-.guest-btn{width:100%;padding:11px;background:transparent;border:1px solid var(--brd2);border-radius:var(--rs);color:var(--tx3);font-size:13px;font-weight:500;font-family:var(--FB);cursor:pointer;transition:all var(--T);display:flex;align-items:center;justify-content:center;gap:8px}
-.guest-btn:hover{border-color:var(--brd);color:var(--tx2);background:var(--bg2)}
-/* Password field wrapper */
-.pass-wrap{position:relative;display:flex;align-items:center}
-.pass-wrap .login-inp{padding-right:44px}
-.pass-eye{position:absolute;right:14px;background:none;border:none;color:var(--tx3);cursor:pointer;font-size:16px;line-height:1;padding:4px;transition:color var(--T);flex-shrink:0}
-.pass-eye:hover{color:var(--cy)}
-/* Remember checkbox */
-.login-remember{display:flex;align-items:center;gap:10px;margin:14px 0 18px;cursor:pointer;user-select:none}
-.login-remember-box{width:20px;height:20px;border-radius:5px;border:1.5px solid var(--brd);background:transparent;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;transition:all var(--T)}
-.login-remember-box.on{background:rgba(0,229,255,.15);border-color:var(--cy);color:var(--cy)}
-.login-remember-lbl{font-size:13px;color:var(--tx2)}
-.saved-chip{display:flex;align-items:center;gap:10px;padding:10px 13px;background:var(--bg2);border:1px solid var(--brd2);border-radius:var(--rs);margin-bottom:7px;transition:border-color var(--T)}
-.saved-chip:hover{border-color:var(--brd)}
-.saved-av{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,rgba(0,229,255,.22),rgba(124,131,255,.18));border:1px solid rgba(0,229,255,.3);display:flex;align-items:center;justify-content:center;font-family:var(--FD);font-size:11px;font-weight:800;color:var(--cy);flex-shrink:0}
-.saved-info{flex:1;overflow:hidden}
-.saved-name{font-size:13.5px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.saved-email{font-size:11px;color:var(--tx3);font-family:var(--FM)}
 
-/* Welcome screen */
-.welcome-screen{position:fixed;inset:0;z-index:550;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;animation:fadeIn .4s ease;text-align:center;padding:32px}
-.welcome-screen.hidden{display:none}
-.welcome-av{width:80px;height:80px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--FD);font-size:28px;font-weight:800;color:var(--cy);border:2px solid rgba(0,229,255,.4);box-shadow:0 0 28px rgba(0,229,255,.22);animation:orbp 2.5s ease-in-out infinite}
-.welcome-greeting{font-size:14px;color:var(--cy);font-family:var(--FM);letter-spacing:2px;text-transform:uppercase}
-.welcome-name{font-family:var(--FD);font-size:28px;font-weight:800;color:var(--tx)}
-.welcome-msg{font-size:14px;color:var(--tx2);max-width:300px;line-height:1.6}
-.welcome-bar{width:200px;height:3px;background:var(--bg3);border-radius:2px;overflow:hidden}
-.welcome-bar-fill{height:100%;width:0;background:linear-gradient(90deg,var(--cy),var(--pu));animation:wload 2s ease forwards}
-@keyframes wload{from{width:0}to{width:100%}}
-@keyframes fadeIn{from{opacity:0}to{opacity:1}}
 
 /* User menu in header */
 .user-menu{position:relative}
@@ -482,8 +416,6 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--tx);font-
 .ud-item.danger{color:var(--rd)}
 .ud-item.danger:hover{background:rgba(255,82,82,.07)}
 
-/* Locked app overlay */
-.app-locked{pointer-events:none;filter:blur(3px) brightness(.4);user-select:none}
 
 /* Session settings row */
 .session-pill{font-size:11px;font-family:var(--FM);padding:4px 12px;border-radius:20px;cursor:pointer;border:1px solid var(--brd2);color:var(--tx3);background:var(--bg2);transition:all var(--T);margin-right:5px}
@@ -498,44 +430,6 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--tx);font-
 <body>
 <div class="nebula"></div>
 <div class="scan"></div>
-
-<!-- ══ LOGIN MODAL ══════════════════════════════════════ -->
-<div class="login-backdrop" id="login-backdrop">
-  <div class="login-box" id="login-box">
-
-    <!-- Brand -->
-    <div class="login-orb-wrap">
-      <div class="login-orb"><div class="login-orb-c"></div></div>
-      <div class="login-title">NEX<em>US</em></div>
-      <div class="login-sub" id="login-sub">Acesse seu agente pessoal</div>
-    </div>
-
-    <!-- Tabs -->
-    <div class="login-tabs">
-      <button class="ltab on" id="tab-in" onclick="switchTab('login')">Entrar</button>
-      <button class="ltab" id="tab-up" onclick="switchTab('register')">Criar conta</button>
-    </div>
-
-    <!-- Error -->
-    <div class="login-err" id="login-err"></div>
-
-    <!-- Form (rendered by JS) -->
-    <div id="form-fields"></div>
-
-    <!-- Guest -->
-    <div class="login-divider">ou</div>
-    <button class="guest-btn" onclick="enterGuest()">👁 Entrar como convidado (somente leitura)</button>
-  </div>
-</div>
-
-<!-- ══ WELCOME SCREEN ═══════════════════════════════════ -->
-<div class="welcome-screen hidden" id="welcome-screen">
-  <div class="welcome-av" id="welcome-av">N</div>
-  <div class="welcome-greeting" id="welcome-greeting">BOM DIA</div>
-  <div class="welcome-name" id="welcome-name">Astronauta</div>
-  <div class="welcome-msg" id="welcome-msg">Sua rotina está pronta para hoje.</div>
-  <div class="welcome-bar"><div class="welcome-bar-fill"></div></div>
-</div>
 
 <div class="app" id="app">
 
@@ -559,18 +453,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--tx);font-
         <div class="brand-name">NEX<em>US</em></div>
       </div>
       <div class="st-pill" id="st-pill"><div class="sdot"></div><span id="st-label">ONLINE</span></div>
-      <div class="user-menu" id="user-menu" style="display:none">
-        <div class="user-chip" onclick="toggleUserMenu()">
-          <div class="user-av" id="header-av">N</div>
-          <span id="header-name">Usuário</span>
-          <span style="font-size:9px;margin-left:2px">▾</span>
-        </div>
-        <div class="user-dropdown" id="user-dropdown">
-          <div class="ud-item" onclick="openUserSettings()">⚙ Configurações</div>
-          <div class="ud-item" onclick="switchUser()">🔄 Trocar usuário</div>
-          <div class="ud-item danger" onclick="logout()">↩ Sair</div>
-        </div>
-      </div>
+
       <div class="hdr-r">
         <button class="hbtn" id="pm-btn" title="Modo Privado" onclick="togglePM()">🔒</button>
         <button class="hbtn" id="focus-btn" title="Modo Foco" onclick="toggleFocus()">⊡</button>
@@ -1353,7 +1236,7 @@ async function memSave(userMsg, nexusResp){
     const db = await memOpen();
     const tags = autoTag(userMsg+' '+nexusResp);
     const record = {
-      userId:    _currentUser.id,
+      userId:    'local',
       timestamp: Date.now(),
       user_message:  userMsg,
       nexus_response: nexusResp.slice(0,800), // cap response size
@@ -1373,7 +1256,7 @@ async function memSave(userMsg, nexusResp){
 
 // ── Load recent interactions for context ─────
 async function memLoad(limit=60){
-  if(!_currentUser||_currentUser.isGuest) return [];
+  // load all interactions
   try{
     const db = await memOpen();
     const cutoff = Date.now() - MEM_RETENTION*24*60*60*1000;
@@ -1381,7 +1264,7 @@ async function memLoad(limit=60){
       const tx = db.transaction(MEM_STORE,'readonly');
       const idx = tx.objectStore(MEM_STORE).index('userId');
       const results=[];
-      idx.openCursor(IDBKeyRange.only(_currentUser.id),'prev').onsuccess = e=>{
+      idx.openCursor(IDBKeyRange.only('local'),'prev').onsuccess = e=>{
         const cursor = e.target.result;
         if(cursor && results.length<limit){
           const r=cursor.value;
@@ -1467,12 +1350,11 @@ function memExtractPrefs(userMsg, nexusResp){
 
 // ── Prefs via LocalStorage ────────────────────
 function memLoadPrefs(){
-  try{ return JSON.parse(localStorage.getItem(MEM_PREF_KEY+((_currentUser?.id)||''))||'{"topics":[],"people":[],"decisions":[]}'); }
+  try{ return JSON.parse(localStorage.getItem(MEM_PREF_KEY+'local')||'{"topics":[],"people":[],"decisions":[]}'); }
   catch{ return {topics:[],people:[],decisions:[]}; }
 }
 function memSavePrefs(p){
-  if(!_currentUser||_currentUser.isGuest) return;
-  try{ localStorage.setItem(MEM_PREF_KEY+_currentUser.id, JSON.stringify(p)); }catch{}
+  try{ localStorage.setItem(MEM_PREF_KEY+'local', JSON.stringify(p)); }catch{}
 }
 
 // ── Enforce limits + compress ─────────────────
@@ -1482,7 +1364,7 @@ async function memEnforceLimits(){
     const db = await memOpen();
     const all = await new Promise(res=>{
       const tx = db.transaction(MEM_STORE,'readonly');
-      const req = tx.objectStore(MEM_STORE).index('userId').getAll(IDBKeyRange.only(_currentUser.id));
+      const req = tx.objectStore(MEM_STORE).index('userId').getAll(IDBKeyRange.only('local'));
       req.onsuccess=e=>res(e.target.result);
     });
     // Remove expired
@@ -1516,7 +1398,7 @@ async function memCompressOldest(interactions){
     const store = tx.objectStore(MEM_STORE);
     interactions.forEach(i=>store.delete(i.id));
     store.add({
-      userId: _currentUser.id,
+      userId: 'local',
       timestamp: interactions[0].timestamp,
       user_message: summary,
       nexus_response: '[comprimido]',
@@ -1710,456 +1592,18 @@ function init(){
   }
 }
 
-// ═══════════════════════════════════════════════
-// LOGIN SYSTEM
-// ═══════════════════════════════════════════════
-const LS_USERS='nexus_users', LS_SESSION='nexus_session', LS_DATA_PFX='nexus_data_';
-let _authTab='login', _remember=false, _currentUser=null, _saveTimer=null;
-
-// ── Per-user data persistence ─────────────────
-function saveUserData(){
-  if(!_currentUser||_currentUser.isGuest) return;
-  const data={tasks:S.tasks,habits:S.habits,events:S.events,goals:S.goals,txns:S.txns,dailyNote:S.dailyNote,profile:S.profile,savedAt:Date.now()};
-  try{ localStorage.setItem(LS_DATA_PFX+_currentUser.id,JSON.stringify(data)); }catch(e){}
-}
-function applyUserData(uid){
-  try{
-    const raw=localStorage.getItem(LS_DATA_PFX+uid);
-    if(!raw) return false;
-    const d=JSON.parse(raw);
-    if(d.tasks)   S.tasks=d.tasks;
-    if(d.habits)  S.habits=d.habits;
-    if(d.events)  S.events=d.events;
-    if(d.goals)   S.goals=d.goals;
-    if(d.txns)    S.txns=d.txns;
-    if(d.dailyNote!==undefined) S.dailyNote=d.dailyNote;
-    if(d.profile) S.profile={...S.profile,...d.profile};
-    return true;
-  }catch{ return false; }
-}
-function autoSave(){
-  clearTimeout(_saveTimer);
-  _saveTimer=setTimeout(saveUserData,500);
-}
-// ── Session validation ───────────────────────
-function isSessionValid(session){
-  if(!session) return false;
-  if(!session.expiresAt) return true;
-  return Date.now()<session.expiresAt;
-}
-function getUsers(){try{return JSON.parse(localStorage.getItem(LS_USERS)||'[]');}catch{return [];}}
-function saveUsers(u){localStorage.setItem(LS_USERS,JSON.stringify(u));}
-function getSession(){try{return JSON.parse(localStorage.getItem(LS_SESSION)||'null');}catch{return null;}}
-function saveSession(u){localStorage.setItem(LS_SESSION,JSON.stringify(u));}
-function clearSession(){localStorage.removeItem(LS_SESSION);}
-// SHA-256 via Web Crypto API (async) — used for all new passwords
-async function hashPwd(s){
-  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s));
-  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
-}
-// Sync legacy hash — only used to migrate old accounts on first login
-function hashPwdLegacy(s){let h=0;for(let i=0;i<s.length;i++){h=Math.imul(31,h)+s.charCodeAt(i)|0;}return h.toString(36);}
-function getGreeting(){const h=new Date().getHours();return h<12?'BOM DIA':h<18?'BOA TARDE':'BOA NOITE';}
-function getWelcomeMsg(name,isNew){
-  const h=new Date().getHours();
-  if(isNew) return 'Seu agente pessoal está pronto.';
-  if(h<12) return 'Sua rotina matinal está pronta.';
-  if(h<18) return 'Continue de onde parou.';
-  return 'Sua rotina noturna aguarda.';
-}
-
-function switchTab(tab){
-  _authTab = tab;
-  const err = document.getElementById('login-err');
-  if(err) err.classList.remove('show');
-  const tabIn = document.getElementById('tab-in');
-  const tabUp = document.getElementById('tab-up');
-  if(tabIn) tabIn.classList.toggle('on', tab==='login');
-  if(tabUp) tabUp.classList.toggle('on', tab==='register');
-  const ff = document.getElementById('form-fields');
-  if(!ff) return;
-
-  if(tab === 'login'){
-    document.getElementById('login-sub').textContent = 'Acesse seu agente pessoal';
-    ff.innerHTML = `
-      <div class="login-fg">
-        <label class="login-fl">E-mail</label>
-        <input class="login-inp" id="f-email" type="email" name="email"
-          autocomplete="email" placeholder="seu@email.com"
-          onkeydown="if(event.key==='Enter')document.getElementById('f-pass').focus()">
-      </div>
-      <div class="login-fg">
-        <label class="login-fl">Senha</label>
-        <div class="pass-wrap">
-          <input class="login-inp" id="f-pass" type="password" name="password"
-            autocomplete="current-password" placeholder="••••••••"
-            onkeydown="if(event.key==='Enter')handleAuth()">
-          <button class="pass-toggle" type="button" onclick="togglePass('f-pass','eye-login')" title="Ver/ocultar senha">
-            <span id="eye-login">👁</span>
-          </button>
-        </div>
-      </div>
-      <div class="login-row" style="margin-bottom:18px">
-        <div class="login-check" id="remember-chk" onclick="toggleRemember()"></div>
-        <span class="login-check-lbl" onclick="toggleRemember()">Lembrar minha conta</span>
-      </div>
-      <button class="login-btn" onclick="handleAuth()">Entrar</button>
-      <div style="text-align:center;margin-top:12px">
-        <button class="login-link" onclick="switchTab('recover')">Esqueci minha senha</button>
-      </div>`;
-
-  } else if(tab === 'register'){
-    document.getElementById('login-sub').textContent = 'Crie sua conta no NEXUS';
-    ff.innerHTML = `
-      <div class="login-fg">
-        <label class="login-fl">Nome</label>
-        <input class="login-inp" id="f-name" type="text" name="name"
-          autocomplete="name" placeholder="Seu nome">
-      </div>
-      <div class="login-fg">
-        <label class="login-fl">E-mail</label>
-        <input class="login-inp" id="f-email" type="email" name="email"
-          autocomplete="email" placeholder="seu@email.com">
-      </div>
-      <div class="login-fg">
-        <label class="login-fl">Senha</label>
-        <div class="pass-wrap">
-          <input class="login-inp" id="f-pass" type="password" name="new-password"
-            autocomplete="new-password" placeholder="Mínimo 6 caracteres">
-          <button class="pass-toggle" type="button" onclick="togglePass('f-pass','eye-reg1')" title="Ver/ocultar senha">
-            <span id="eye-reg1">👁</span>
-          </button>
-        </div>
-      </div>
-      <div class="login-fg">
-        <label class="login-fl">Repetir senha</label>
-        <div class="pass-wrap">
-          <input class="login-inp" id="f-pass2" type="password" name="new-password-2"
-            autocomplete="new-password" placeholder="Confirme a senha"
-            onkeydown="if(event.key==='Enter')handleAuth()">
-          <button class="pass-toggle" type="button" onclick="togglePass('f-pass2','eye-reg2')" title="Ver/ocultar senha">
-            <span id="eye-reg2">👁</span>
-          </button>
-        </div>
-      </div>
-      <div class="login-fg">
-        <label class="login-fl">Pergunta secreta (recuperação)</label>
-        <input class="login-inp" id="f-hint-q" type="text" placeholder="Ex: Nome do seu primeiro pet?">
-      </div>
-      <div class="login-fg">
-        <label class="login-fl">Resposta</label>
-        <input class="login-inp" id="f-hint-a" type="text" placeholder="Resposta secreta"
-          onkeydown="if(event.key==='Enter')handleAuth()">
-      </div>
-      <div class="login-row" style="margin-bottom:18px">
-        <div class="login-check" id="remember-chk" onclick="toggleRemember()"></div>
-        <span class="login-check-lbl" onclick="toggleRemember()">Lembrar minha conta</span>
-      </div>
-      <button class="login-btn" onclick="handleAuth()">Criar conta</button>`;
-
-  } else if(tab === 'recover'){
-    document.getElementById('login-sub').textContent = 'Recuperar acesso';
-    ff.innerHTML = `
-      <div class="login-fg">
-        <label class="login-fl">E-mail cadastrado</label>
-        <input class="login-inp" id="f-email" type="email" placeholder="seu@email.com"
-          onblur="loadRecoverHint(this.value)">
-      </div>
-      <div id="hint-q-wrap" style="display:none;margin-bottom:12px;padding:12px;background:rgba(0,229,255,.05);border-radius:8px;border:1px solid var(--brd2);font-size:13px;color:var(--tx2)"></div>
-      <div class="login-fg" id="hint-a-wrap" style="display:none">
-        <label class="login-fl">Resposta secreta</label>
-        <input class="login-inp" id="f-hint-a" type="text" placeholder="Sua resposta">
-      </div>
-      <div class="login-fg" id="new-pass-wrap" style="display:none">
-        <label class="login-fl">Nova senha</label>
-        <div class="pass-wrap">
-          <input class="login-inp" id="f-newpass" type="password" placeholder="Nova senha (mín. 6)"
-            onkeydown="if(event.key==='Enter')handleAuth()">
-          <button class="pass-toggle" type="button" onclick="togglePass('f-newpass','eye-rec')" title="Ver/ocultar senha">
-            <span id="eye-rec">👁</span>
-          </button>
-        </div>
-      </div>
-      <button class="login-btn" onclick="handleAuth()">Verificar e recuperar</button>
-      <div style="text-align:center;margin-top:12px">
-        <button class="login-link" onclick="switchTab('login')">← Voltar ao login</button>
-      </div>`;
-  }
-}
-
-// Toggle password visibility
-function togglePass(inputId, iconId){
-  const inp  = document.getElementById(inputId);
-  const icon = document.getElementById(iconId);
-  if(!inp) return;
-  const isHidden = inp.type === 'password';
-  inp.type  = isHidden ? 'text' : 'password';
-  if(icon) icon.textContent = isHidden ? '🙈' : '👁';
-}
-function loadRecoverHint(email){
-  const u = getUsers().find(x => x.email === email.trim());
-  const qw=document.getElementById('hint-q-wrap');
-  const aw=document.getElementById('hint-a-wrap');
-  const np=document.getElementById('new-pass-wrap');
-  if(!qw||!aw||!np) return;
-  if(u&&u.hintQ){ qw.style.display='block'; qw.textContent='🔑 '+u.hintQ; aw.style.display='block'; np.style.display='block'; }
-  else { qw.style.display='none'; aw.style.display='none'; np.style.display='none'; }
-}
-function toggleRemember(){_remember=!_remember;document.getElementById('remember-chk').classList.toggle('on',_remember);}
-function showErr(msg){const el=document.getElementById('login-err');el.textContent=msg;el.classList.add('show');}
-
-async function handleAuth(){
-  const tab=_authTab;
-  if(tab==='login'){
-    const email=(document.getElementById('f-email')||{}).value?.trim();
-    const pass=(document.getElementById('f-pass')||{}).value;
-    if(!email||!pass){showErr('Preencha e-mail e senha.');return;}
-    const users=getUsers(),user=users.find(u=>u.email===email);
-    if(!user){showErr('E-mail não encontrado. Crie uma conta.');return;}
-    const hashed = await hashPwd(pass);
-    // Support legacy accounts (old hash) — migrate on successful login
-    const legacyHash = hashPwdLegacy(pass);
-    if(user.pwd!==hashed && user.pwd!==legacyHash){showErr('Senha incorreta. Tente novamente.');return;}
-    if(user.pwd===legacyHash){ user.pwd=hashed; const us=getUsers(); const idx=us.findIndex(u=>u.id===user.id); if(idx>=0){us[idx].pwd=hashed;saveUsers(us);} }
-    doLogin(user,false);
-  } else if(tab==='register'){
-    const name=(document.getElementById('f-name')||{}).value?.trim();
-    const email=(document.getElementById('f-email')||{}).value?.trim();
-    const pass=(document.getElementById('f-pass')||{}).value;
-    const pass2=(document.getElementById('f-pass2')||{}).value;
-    const hQ=(document.getElementById('f-hint-q')||{}).value?.trim();
-    const hA=(document.getElementById('f-hint-a')||{}).value?.trim();
-    if(!name||!email||!pass){showErr('Preencha nome, e-mail e senha.');return;}
-    if(pass.length<6){showErr('Senha muito curta. Mínimo 6 caracteres.');return;}
-    if(pass2 && pass!==pass2){showErr('As senhas não coincidem. Verifique.');return;}
-    const users=getUsers();
-    if(users.find(u=>u.email===email)){showErr('E-mail já cadastrado. Faça login.');return;}
-    const [pwdHash, hintHash] = await Promise.all([hashPwd(pass), hA?hashPwd(hA.toLowerCase()):Promise.resolve('')]);
-    const nu={id:Date.now(),name,email,pwd:pwdHash,hintQ:hQ||'',hintA:hintHash,createdAt:new Date().toISOString()};
-    users.push(nu);saveUsers(users);doLogin(nu,true);
-  } else if(tab==='recover'){
-    const email=(document.getElementById('f-email')||{}).value?.trim();
-    const hA=(document.getElementById('f-hint-a')||{}).value?.trim();
-    const np=(document.getElementById('f-newpass')||{}).value;
-    if(!email){showErr('Informe seu e-mail.');return;}
-    const users=getUsers(),idx=users.findIndex(u=>u.email===email);
-    if(idx===-1){showErr('E-mail não encontrado.');return;}
-    const hintCheck = hA ? await hashPwd(hA.toLowerCase()) : '';
-    if(users[idx].hintA&&users[idx].hintA!==hintCheck&&users[idx].hintA!==hashPwdLegacy(hA.toLowerCase())){showErr('Resposta incorreta.');return;}
-    if(!np||np.length<6){showErr('Nova senha: mínimo 6 caracteres.');return;}
-    users[idx].pwd=await hashPwd(np);saveUsers(users);
-    showErr('');toast('Senha atualizada! Faça login.');switchTab('login');
-  }
-}
-
-function doLogin(user, isNew, isAuto){
-  _currentUser=user;
-  // Always save session (persistent by default)
-  const DEFAULT_EXPIRY = 30*24*60*60*1000; // 30 days default
-  const sessionExpiry = user.sessionExpiry !== undefined ? user.sessionExpiry : DEFAULT_EXPIRY;
-  const expiresAt = sessionExpiry ? Date.now() + sessionExpiry : null;
-  saveSession({userId:user.id, email:user.email, name:user.name, loginTime:Date.now(), expiresAt});
-  // Load saved user data
-  const hadData = applyUserData(user.id);
-  S.profile.name = user.name;
-  // Show welcome screen (skip animation on auto-relogin)
-  document.getElementById('login-backdrop').classList.add('hidden');
-  if(!isAuto){
-    const ws=document.getElementById('welcome-screen');
-    ws.classList.remove('hidden');
-    document.getElementById('welcome-av').textContent=getInits(user.name);
-    document.getElementById('welcome-greeting').textContent=getGreeting();
-    document.getElementById('welcome-name').textContent=escHtml(user.name);
-    document.getElementById('welcome-msg').textContent=getWelcomeMsg(escHtml(user.name),isNew);
-  }
-  const delay = isAuto ? 0 : 2200;
-  setTimeout(()=>{
-    const ws=document.getElementById('welcome-screen');
-    if(ws) ws.classList.add('hidden');
-    document.getElementById('app').classList.remove('app-locked');
-    updateHeaderUser();
-    document.getElementById('st-pill').style.display='none';
-    document.getElementById('user-menu').style.display='block';
-    renderHUD(); computeAlerts(); S.msgs=[];
-    const tp=S.tasks.length?Math.round(tdone()/S.tasks.length*100):0;
-    const hp=S.habits.length?Math.round(hdone()/S.habits.length*100):0;
-    const gr=getGreeting(); const grLow=gr.charAt(0)+gr.slice(1).toLowerCase();
-    if(isAuto){
-      // Quick relogin — short greeting only
-      pushMsg({role:'nexus',tp:'n',
-        text:`${grLow}, **${user.name}**. Bem-vindo de volta — sua rotina está pronta.`,
-        card:{title:'RESUMO DO DIA',
-          stats:[{val:`${tdone()}/${S.tasks.length}`,lbl:'Tarefas',cls:'hi'},{val:`${hdone()}/${S.habits.length}`,lbl:'Hábitos',cls:'ok'},{val:fmt(bal()),lbl:'Saldo',cls:overLim()?'wn':'hi'},{val:`${todEvts().length}`,lbl:'Hoje',cls:'hi'}],
-          rows:[{label:'Tarefas',pct:tp,cls:tp>60?'g':''},{label:'Hábitos',pct:hp,cls:hp>60?'g':''}]}});
-    } else {
-      pushMsg({role:'nexus',tp:'n',
-        text:`Sistema ativo. ${grLow}, **${user.name}**. ${isNew?'Conta criada com sucesso! ':''}${hadData?'Dados carregados.':'Sua rotina está pronta.'}`,
-        card:{title:'RELATÓRIO DO DIA',
-          stats:[{val:`${tdone()}/${S.tasks.length}`,lbl:'Tarefas',cls:'hi'},{val:`${hdone()}/${S.habits.length}`,lbl:'Hábitos',cls:'ok'},{val:fmt(bal()),lbl:'Saldo',cls:overLim()?'wn':'hi'},{val:`${S.events.length}`,lbl:'Eventos',cls:'hi'}],
-          rows:[{label:'Tarefas',pct:tp,cls:tp>60?'g':''},{label:'Hábitos',pct:hp,cls:hp>60?'g':''},{label:S.goals[0]?.title?.slice(0,32)+'…'||'Meta',pct:pct(S.goals[0]||{sub:[]})},{label:'Meta economia',pct:Math.min(100,Math.round(Math.max(0,bal())/SAVINGS_GOAL*100)),cls:'g'}]}});
-      pushMsg({role:'nexus',tp:'n',text:'Digite **/** para ver os comandos ou converse comigo diretamente.'});
-    }
-    // Init memory DB
-    memOpen().catch(e=>console.warn('NEXUS mem init:',e));
-    // Request notification permission
-    requestNotifPermission();
-    // Schedule daily reminders
-    scheduleReminders();
-
-  }, delay);
-}
-
-// quickLogin replaced by handleQuickAuth (no prompt)
-
-
-
-function enterGuest(){
-  _currentUser={name:'Convidado',email:'',isGuest:true};
-  S.profile.name='Convidado';
-  document.getElementById('login-backdrop').classList.add('hidden');
-  document.getElementById('app').classList.remove('app-locked');
-  document.getElementById('st-pill').style.display='none';
-  document.getElementById('user-menu').style.display='block';
-  updateHeaderUser();renderHUD();computeAlerts();S.msgs=[];
-  pushMsg({role:'nexus',tp:'n',text:'Bem-vindo, **Convidado**. Modo somente leitura — explore o NEXUS livremente. Crie uma conta para acesso completo e para salvar seus dados.'});
-}
-
-function updateHeaderUser(){
-  if(!_currentUser)return;
-  document.getElementById('header-av').textContent=getInits(_currentUser.name);
-  document.getElementById('header-name').textContent=_currentUser.name.split(' ')[0];
-}
-
-function toggleUserMenu(){document.getElementById('user-dropdown').classList.toggle('show');}
-document.addEventListener('click',e=>{
-  const um=document.getElementById('user-menu');
-  if(um&&!um.contains(e.target))document.getElementById('user-dropdown').classList.remove('show');
-});
-
-function openUserSettings(){document.getElementById('user-dropdown').classList.remove('show');goPanel('settings');}
-function switchUser(){
-  document.getElementById('user-dropdown').classList.remove('show');
-  saveUserData();
-
-  _currentUser=null; clearSession();
-  document.getElementById('app').classList.add('app-locked');
-  document.getElementById('user-menu').style.display='none';
-  document.getElementById('st-pill').style.display='flex';
-  document.getElementById('login-backdrop').classList.remove('hidden');
-  S.msgs=[]; switchTab('login');
-}
-function logout(){
-  document.getElementById('user-dropdown').classList.remove('show');
-  saveUserData();
-
-  _currentUser=null; clearSession();
-  S.profile.name='Astronauta';
-  document.getElementById('app').classList.add('app-locked');
-  document.getElementById('user-menu').style.display='none';
-  document.getElementById('st-pill').style.display='flex';
-  document.getElementById('login-backdrop').classList.remove('hidden');
-  S.msgs=[]; switchTab('login'); toast('Sessão encerrada.');
-}
-
-// Guest mode intercept
-const _origSendMsg=sendMsg;
-window.sendMsg=async function(){
-  if(_currentUser&&_currentUser.isGuest){toast('Modo convidado — crie uma conta para interagir.');return;}
-  return _origSendMsg();
-};
-
-// ═══════════════════════════════════════════════
-// NOTIFICATIONS
-// ═══════════════════════════════════════════════
-function requestNotifPermission(){
-  if(!('Notification' in window)) return;
-  if(Notification.permission==='default'){
-    Notification.requestPermission().then(perm=>{
-      if(perm==='granted') toast('Notificações ativadas ✔');
-    });
-  }
-}
-function showNotif(title, body, icon='./icon-192.png'){
-  if(Notification.permission!=='granted') return;
-  if('serviceWorker' in navigator && navigator.serviceWorker.controller){
-    navigator.serviceWorker.ready.then(reg=>{
-      reg.showNotification(title,{body,icon,badge:'./icon-192.png',vibrate:[200,100,200]});
-    });
-  } else {
-    new Notification(title,{body,icon});
-  }
-}
-function scheduleReminders(){
-  if(!_currentUser||_currentUser.isGuest) return;
-  if(Notification.permission!=='granted') return;
-  // Check habits not done — notify after 30s if any pending
-  setTimeout(()=>{
-    const pending=S.habits.filter(h=>!h.done);
-    if(pending.length>0){
-      showNotif('NEXUS — Hábitos pendentes',`Você tem ${pending.length} hábito${pending.length>1?'s':''} para completar hoje: ${pending[0].name}${pending.length>1?` e mais ${pending.length-1}`:'.'}`);
-    }
-  }, 30000);
-  // Check overdue tasks — notify after 60s
-  setTimeout(()=>{
-    const overdue=S.tasks.filter(t=>!t.done&&t.date===todayStr()&&t.priority==='alta');
-    if(overdue.length>0){
-      showNotif('NEXUS — Tarefas urgentes',`${overdue.length} tarefa${overdue.length>1?'s':''} de alta prioridade pendente${overdue.length>1?'s':''} hoje.`);
-    }
-  }, 60000);
-}
-
-// ═══════════════════════════════════════════════
-// SESSION EXPIRY HELPERS
-// ═══════════════════════════════════════════════
-const SESSION_OPTIONS=[
-  {label:'7 dias',value:7*24*60*60*1000},
-  {label:'30 dias (padrão)',value:30*24*60*60*1000},
-  {label:'90 dias',value:90*24*60*60*1000},
-  {label:'Nunca',value:null},
-];
-function setSessionExpiry(ms){
-  if(!_currentUser) return;
-  _currentUser.sessionExpiry = ms;
-  // Update saved session with new expiry
-  const session=getSession();
-  if(session){
-    session.expiresAt = ms ? Date.now()+ms : null;
-    saveSession(session);
-  }
-  // Update user record
-  const users=getUsers();
-  const idx=users.findIndex(u=>u.id===_currentUser.id);
-  if(idx>=0){ users[idx].sessionExpiry=ms; saveUsers(users); }
-  const opt=SESSION_OPTIONS.find(o=>o.value===ms);
-  toast(`Sessão: ${opt?opt.label:'personalizada'}`);
-  refreshPanel();
-}
-function getCurrentExpiry(){
-  if(!_currentUser) return null;
-  return _currentUser.sessionExpiry||null;
-}
 
 // ═══════════════════════════════════════════════
 // BOOTSTRAP
 // ═══════════════════════════════════════════════
 (function bootstrap(){
-  document.getElementById('app').classList.add('app-locked');
-  switchTab('login');
-  const session=getSession();
-  if(session && isSessionValid(session)){
-    const users=getUsers();
-    const user=users.find(u=>u.id===session.userId||u.email===session.email);
-    if(user){ init(); doLogin(user,false,true); return; } // isAuto=true
-  } else if(session && !isSessionValid(session)){
-    clearSession(); // expired — clean up
-  }
-  init();
   // Listen for app visibility changes (PWA reopen)
   document.addEventListener('visibilitychange',()=>{
-    if(document.visibilityState==='visible'&&_currentUser&&!_currentUser.isGuest){
+    if(document.visibilityState==='visible'){
       renderHUD(); computeAlerts();
     }
   });
+  init();
 })();
 </script>
 </body>
