@@ -1583,22 +1583,32 @@ function init(){
   updateOnlineStatus();
 
   // Register Service Worker (PWA)
-  // Register Service Worker only on real hosting (not in preview environments)
+  // Register Service Worker — apenas em ambiente real (não em preview)
   if('serviceWorker' in navigator){
-    const isPreview = location.hostname.includes('claudeusercontent.com') ||
-                      location.hostname === 'localhost' ||
-                      location.protocol === 'file:';
+    const isPreview =
+      location.hostname.includes('claudeusercontent.com') ||
+      location.hostname === 'localhost' ||
+      location.protocol === 'file:';
+
     if(!isPreview){
       navigator.serviceWorker.register('./sw.js', {scope: './'})
         .then(reg => {
-          console.log('NEXUS SW registered — scope:', reg.scope);
-          // Check for updates on each load
+          console.log('[NEXUS] SW registrado — escopo:', reg.scope);
+          // Verifica atualização a cada abertura do app
           reg.update();
+          // Notifica quando nova versão estiver pronta
+          reg.addEventListener('updatefound', () => {
+            const newSW = reg.installing;
+            newSW.addEventListener('statechange', () => {
+              if(newSW.state === 'installed' && navigator.serviceWorker.controller){
+                console.log('[NEXUS] Nova versão disponível — aplicando...');
+              }
+            });
+          });
         })
-        .catch(e => console.warn('NEXUS SW registration failed:', e.message));
-    } else {
-      console.log('NEXUS SW skipped — preview environment');
+        .catch(e => console.warn('[NEXUS] SW não registrado:', e.message));
     }
+    // claudeusercontent.com / localhost / file: — SW ignorado silenciosamente
   }
 }
 

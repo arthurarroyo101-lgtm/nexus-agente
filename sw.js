@@ -1,69 +1,92 @@
-// NEXUS Service Worker v13
-// Handles offline caching for GitHub Pages hosting
-const CACHE_NAME = 'nexus-v13';
+// ─────────────────────────────────────────────
+// NEXUS Service Worker — Auto-versioned Cache
+// ─────────────────────────────────────────────
+// 👉 Para lançar nova versão: mude apenas esta constante
+const CACHE_VERSION = 'nexus-v13';
+
 const ASSETS = [
   './',
   './index.html',
   './manifest.json',
   './icon-192.png',
   './icon-512.png',
-  'https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap'
 ];
 
-// ── Install: cache all static assets ─────────────────────────────────────────
+// ── INSTALL — pré-carrega assets no cache ─────
 self.addEventListener('install', e => {
-  console.log('[NEXUS SW] Installing v13...');
+  console.log(`[SW] Instalando ${CACHE_VERSION}`);
   e.waitUntil(
-    caches.open(CACHE_NAME)
+    caches.open(CACHE_VERSION)
       .then(cache => cache.addAll(ASSETS))
-      .then(() => self.skipWaiting())
-      .catch(err => console.warn('[NEXUS SW] Cache partial fail:', err))
+      .then(() => {
+        console.log(`[SW] Cache ${CACHE_VERSION} pronto`);
+        // Ativa imediatamente sem esperar abas fecharem
+        return self.skipWaiting();
+      })
+      .catch(err => console.warn('[SW] Falha parcial no cache:', err))
   );
 });
 
-// ── Activate: clean up old caches ────────────────────────────────────────────
+// ── ACTIVATE — apaga caches antigos automaticamente
 self.addEventListener('activate', e => {
-  console.log('[NEXUS SW] Activating v13...');
+  console.log(`[SW] Ativando ${CACHE_VERSION} — limpando versões antigas`);
   e.waitUntil(
     caches.keys()
       .then(keys => Promise.all(
-        keys.filter(k => k !== CACHE_NAME).map(k => {
-          console.log('[NEXUS SW] Deleting old cache:', k);
-          return caches.delete(k);
-        })
+        keys
+          .filter(key => key !== CACHE_VERSION)
+          .map(key => {
+            console.log(`[SW] Apagando cache antigo: ${key}`);
+            return caches.delete(key);
+          })
       ))
-      .then(() => self.clients.claim())
+      .then(() => {
+        console.log('[SW] Limpeza concluída — assumindo controle das páginas');
+        // Assume controle imediato de todas as abas abertas
+        return self.clients.claim();
+      })
   );
 });
 
-// ── Fetch: smart caching strategy ────────────────────────────────────────────
+// ── FETCH — cache-first, network fallback ────
 self.addEventListener('fetch', e => {
-  const url = e.request.url;
+  const req = e.request;
 
-  // ✅ Never intercept AI API — let browser handle directly (avoids 404 errors)
-  if (url.includes('api.anthropic.com')) return;
+  // Apenas intercepta GET — nunca POST/PUT/DELETE
+  if (req.method !== 'GET') return;
 
-  // ✅ Never intercept Google Fonts requests
-  if (url.includes('fonts.googleapis.com') || url.includes('fonts.gstatic.com')) return;
+  // Nunca intercepta APIs externas
+  const url = req.url;
+  if (
+    url.includes('api.anthropic.com') ||
+    url.includes('fonts.googleapis.com') ||
+    url.includes('fonts.gstatic.com')
+  ) return;
 
-  // App shell — cache first, network fallback
   e.respondWith(
-    caches.match(e.request)
+    caches.match(req)
       .then(cached => {
+        // Cache hit — retorna imediatamente (offline-first)
         if (cached) return cached;
 
-        return fetch(e.request)
+        // Não está no cache — busca na rede
+        return fetch(req)
           .then(response => {
-            // Only cache valid same-origin responses
-            if (response && response.status === 200 && response.type === 'basic') {
+            // Cacheia respostas válidas de mesma origem
+            if (
+              response &&
+              response.status === 200 &&
+              response.type === 'basic'
+            ) {
               const clone = response.clone();
-              caches.open(CACHE_NAME).then(cache => cache.put(e.request, clone));
+              caches.open(CACHE_VERSION)
+                .then(cache => cache.put(req, clone));
             }
             return response;
           })
           .catch(() => {
-            // Offline fallback for navigation requests
-            if (e.request.destination === 'document' || e.request.mode === 'navigate') {
+            // Offline fallback — serve o app shell para navegação
+            if (req.destination === 'document' || req.mode === 'navigate') {
               return caches.match('./index.html');
             }
           });
@@ -71,7 +94,7 @@ self.addEventListener('fetch', e => {
   );
 });
 
-// ── Push Notifications ────────────────────────────────────────────────────────
+// ── PUSH NOTIFICATIONS (base para futuro) ────
 self.addEventListener('push', e => {
   const data = e.data?.json() || { title: 'NEXUS', body: 'Nova notificação' };
   e.waitUntil(
