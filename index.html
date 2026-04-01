@@ -897,7 +897,7 @@ async function sendMsg(){
     memSave(msg, clean).catch(e=>console.warn('NEXUS memSave:',e));
   }catch(err){
     console.warn('NEXUS send error:', err?.message||err);
-    const isOffline   = !navigator.onLine;
+    const isOffline   = !(await checkOnline().catch(()=>false));
     const isCORS      = err instanceof TypeError && err.message.includes('Failed to fetch');
     const isAPIKey    = err?.message?.includes('401') || err?.message?.includes('authentication');
     const isRateLimit = err?.message?.includes('429') || err?.message?.includes('rate');
@@ -1566,21 +1566,40 @@ function init(){
   // Activate PIN if enabled
   if(S.privacy.pinEnabled) renderPINscreen();
 
-  // Offline/online indicator
-  function updateOnlineStatus(){
-    const pill=document.getElementById('st-label');
-    const dot=document.querySelector('.sdot');
-    if(!navigator.onLine){
-      if(pill) pill.textContent='OFFLINE';
-      if(dot)  dot.style.background='var(--am)';
-    } else {
-      if(pill) pill.textContent='ONLINE';
-      if(dot)  dot.style.background='var(--gn)';
-    }
+  // ── Robust online detection ─────────────────────────────────────────────
+  // navigator.onLine is unreliable — do a real network probe instead
+  async function checkOnline(){
+    // In preview environments, assume online (SW serves index.html from cache)
+    if(location.protocol === 'file:') return true;
+    try{
+      // Use a timestamp to bypass SW cache
+      const res = await fetch('./index.html?_probe=' + Date.now(), {
+        cache: 'no-store', method: 'HEAD', signal: AbortSignal.timeout(3000)
+      });
+      return res.ok;
+    }catch{ return false; }
   }
+
+  async function updateOnlineStatus(){
+    const online = await checkOnline();
+    const pill = document.getElementById('st-label');
+    const dot  = document.querySelector('.sdot');
+    if(online){
+      if(pill){ pill.textContent='ONLINE'; }
+      if(dot){  dot.style.background='var(--gn)'; }
+    } else {
+      if(pill){ pill.textContent='OFFLINE'; }
+      if(dot){  dot.style.background='var(--am)'; }
+    }
+    return online;
+  }
+
+  // Run on load and whenever browser fires network events
+  updateOnlineStatus();
   window.addEventListener('online',  updateOnlineStatus);
   window.addEventListener('offline', updateOnlineStatus);
-  updateOnlineStatus();
+  // Probe every 30s (not 10s — avoids hammering the server)
+  setInterval(updateOnlineStatus, 30000);
 
   // Register Service Worker (PWA)
   // Register Service Worker — apenas em ambiente real (não em preview)
