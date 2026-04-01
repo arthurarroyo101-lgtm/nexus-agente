@@ -945,7 +945,22 @@ async function sendMsg(){
   if(slash){doSlash(slash.cmd);return;}
   pushMsg({role:'user',tp:'n',text:msg});
   S.busy=true; document.getElementById('send-btn').disabled=true; renderMsgs();
-  const hist=S.msgs.slice(-16).map(m=>({role:m.role==='nexus'?'assistant':'user',content:m.text+(m.log&&m.log.length?'\n[Ações: '+m.log.join('; ')+']':'')}));
+  // Build valid message history for Anthropic API
+  // Rules: must start with 'user', must alternate user/assistant, no empty content
+  const rawHist = S.msgs.slice(-20)
+    .filter(m => m.text && m.text.trim())
+    .map(m => ({
+      role: m.role === 'nexus' ? 'assistant' : 'user',
+      content: (m.text + (m.log && m.log.length ? '\n[Ações: ' + m.log.join('; ') + ']' : '')).trim()
+    }));
+  // Drop leading assistant messages (API requires first message = user)
+  while(rawHist.length && rawHist[0].role === 'assistant') rawHist.shift();
+  // Remove consecutive same-role messages (keep last of each group)
+  const hist = rawHist.reduce((acc, m) => {
+    if(acc.length && acc[acc.length-1].role === m.role) acc[acc.length-1] = m;
+    else acc.push(m);
+    return acc;
+  }, []);
   try{
     // Build system prompt — memory errors must never block the API call
     let sysPrompt;
@@ -1000,6 +1015,7 @@ async function sendMsg(){
     } else {
       errMsg = `Erro ao contactar a IA: ${err?.message||'desconhecido'}. Tente novamente.`;
     }
+    console.error('NEXUS erro completo:', err);
     pushMsg({role:'nexus',tp:'n',text:errMsg});
   }
   finally{S.busy=false;document.getElementById('send-btn').disabled=false;renderMsgs();}
