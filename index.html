@@ -1231,7 +1231,6 @@ function autoTag(text){
 
 // ── Save interaction ──────────────────────────
 async function memSave(userMsg, nexusResp){
-  if(!_currentUser||_currentUser.isGuest) return;
   try{
     const db = await memOpen();
     const tags = autoTag(userMsg+' '+nexusResp);
@@ -1359,7 +1358,6 @@ function memSavePrefs(p){
 
 // ── Enforce limits + compress ─────────────────
 async function memEnforceLimits(){
-  if(!_currentUser) return;
   try{
     const db = await memOpen();
     const all = await new Promise(res=>{
@@ -1576,7 +1574,7 @@ function init(){
       if(pill) pill.textContent='OFFLINE';
       if(dot)  dot.style.background='var(--am)';
     } else {
-      if(pill) pill.textContent=(_currentUser&&!_currentUser.isGuest)?'ONLINE':'ONLINE';
+      if(pill) pill.textContent='ONLINE';
       if(dot)  dot.style.background='var(--gn)';
     }
   }
