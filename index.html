@@ -425,6 +425,39 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--tx);font-
 .notif-banner{background:rgba(0,229,255,.06);border:1px solid rgba(0,229,255,.18);border-radius:var(--rs);padding:10px 14px;font-size:12.5px;color:var(--tx2);display:flex;align-items:center;gap:9px;margin-bottom:14px}
 .notif-banner-dot{width:6px;height:6px;border-radius:50%;background:var(--cy);box-shadow:0 0 6px var(--cy);flex-shrink:0}
 
+/* ── ONBOARDING ─────────────────────────────── */
+.ob-screen{position:fixed;inset:0;z-index:300;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:24px}
+.ob-screen.hidden{display:none}
+.ob-box{width:100%;max-width:520px;background:var(--bg1);border:1px solid var(--brd);border-radius:var(--r);padding:36px 32px;position:relative;overflow:hidden}
+.ob-box::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(0,229,255,.07),transparent);pointer-events:none}
+.ob-logo{display:flex;flex-direction:column;align-items:center;gap:10px;margin-bottom:28px}
+.ob-orb{width:52px;height:52px;border-radius:50%;border:2px solid rgba(0,229,255,.4);display:flex;align-items:center;justify-content:center;position:relative}
+.ob-orb::before{content:'';position:absolute;inset:0;border-radius:50%;animation:orbsp 9s linear infinite;border:1.5px solid rgba(0,229,255,.3)}
+.ob-orb-c{width:10px;height:10px;border-radius:50%;background:var(--cy);box-shadow:0 0 12px var(--cy);animation:orbp 2.5s ease-in-out infinite}
+.ob-title{font-family:var(--FD);font-size:24px;font-weight:800;letter-spacing:5px;color:var(--tx)}
+.ob-title em{color:var(--cy);font-style:normal}
+.ob-sub{font-size:13px;color:var(--tx3);font-family:var(--FM);letter-spacing:.5px}
+.ob-steps{display:flex;flex-direction:column;gap:14px;margin-bottom:24px}
+.ob-step{display:flex;align-items:flex-start;gap:14px;padding:13px 15px;background:var(--bg2);border:1px solid var(--brd2);border-radius:var(--rs)}
+.ob-step-n{width:24px;height:24px;border-radius:50%;background:rgba(0,229,255,.12);border:1px solid rgba(0,229,255,.3);display:flex;align-items:center;justify-content:center;font-family:var(--FM);font-size:11px;font-weight:700;color:var(--cy);flex-shrink:0;margin-top:1px}
+.ob-step-inf{flex:1}
+.ob-step-t{font-size:13.5px;font-weight:600;margin-bottom:3px}
+.ob-step-d{font-size:12px;color:var(--tx3);line-height:1.5}
+.ob-step-d a{color:var(--cy);text-decoration:none}
+.ob-step-d a:hover{text-decoration:underline}
+.ob-key-wrap{position:relative;margin-top:8px}
+.ob-key-inp{width:100%;background:var(--bg3);border:1px solid var(--brd);border-radius:var(--rs);padding:9px 42px 9px 13px;font-size:13px;color:var(--tx);font-family:var(--FM);outline:none;transition:border-color var(--T)}
+.ob-key-inp:focus{border-color:rgba(0,229,255,.4);box-shadow:0 0 0 2px rgba(0,229,255,.06)}
+.ob-key-inp::placeholder{color:var(--tx3)}
+.ob-eye{position:absolute;right:11px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--tx3);font-size:15px;transition:color var(--T)}
+.ob-eye:hover{color:var(--cy)}
+.ob-btn{width:100%;background:linear-gradient(135deg,rgba(0,229,255,.18),rgba(0,180,255,.1));border:1px solid rgba(0,229,255,.38);border-radius:var(--rs);padding:13px;color:var(--cy);font-size:14px;font-weight:600;font-family:var(--FD);letter-spacing:2px;cursor:pointer;transition:all var(--T);margin-top:6px}
+.ob-btn:hover{background:linear-gradient(135deg,rgba(0,229,255,.28),rgba(0,180,255,.16));transform:translateY(-1px);box-shadow:0 4px 18px rgba(0,229,255,.15)}
+.ob-btn:disabled{opacity:.35;cursor:not-allowed;transform:none;box-shadow:none}
+.ob-skip{display:block;text-align:center;margin-top:14px;font-size:11px;color:var(--tx3);font-family:var(--FM);cursor:pointer;transition:color var(--T)}
+.ob-skip:hover{color:var(--tx2)}
+.ob-err{font-size:12px;color:var(--rd);font-family:var(--FM);margin-top:6px;display:none}
+.ob-err.show{display:block}
 </style>
 </head>
 <body>
@@ -432,6 +465,50 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--tx);font-
 <div class="scan"></div>
 
 <div class="app" id="app">
+
+  <!-- ONBOARDING SCREEN -->
+  <div class="ob-screen hidden" id="ob-screen">
+    <div class="ob-box">
+      <div class="ob-logo">
+        <div class="ob-orb"><div class="ob-orb-c"></div></div>
+        <div class="ob-title">NEX<em>US</em></div>
+        <div class="ob-sub">AGENTE PESSOAL · CONFIGURAÇÃO INICIAL</div>
+      </div>
+      <div class="ob-steps">
+        <div class="ob-step">
+          <div class="ob-step-n">1</div>
+          <div class="ob-step-inf">
+            <div class="ob-step-t">Crie sua conta Anthropic</div>
+            <div class="ob-step-d">Acesse <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a> e crie uma conta gratuita.</div>
+          </div>
+        </div>
+        <div class="ob-step">
+          <div class="ob-step-n">2</div>
+          <div class="ob-step-inf">
+            <div class="ob-step-t">Gere uma chave de API</div>
+            <div class="ob-step-d">No console, vá em <strong style="color:var(--cy)">API Keys → Create Key</strong>. Copie a chave gerada.</div>
+          </div>
+        </div>
+        <div class="ob-step">
+          <div class="ob-step-n">3</div>
+          <div class="ob-step-inf">
+            <div class="ob-step-t">Cole sua chave abaixo</div>
+            <div class="ob-step-d">Ela fica salva apenas no seu computador — nunca enviada a terceiros.</div>
+            <div class="ob-key-wrap">
+              <input class="ob-key-inp" id="ob-key-inp" type="password"
+                placeholder="sk-ant-api03-..."
+                oninput="document.getElementById('ob-err').classList.remove('show')"
+                onkeydown="if(event.key==='Enter')obSubmit()">
+              <button class="ob-eye" onclick="obToggleKey()" title="Ver/ocultar">👁</button>
+            </div>
+            <div class="ob-err" id="ob-err">Chave inválida — deve começar com sk-ant-</div>
+          </div>
+        </div>
+      </div>
+      <button class="ob-btn" id="ob-btn" onclick="obSubmit()">▶ INICIAR NEXUS</button>
+      <span class="ob-skip" onclick="obSkip()">Configurar depois (IA desativada)</span>
+    </div>
+  </div>
 
   <!-- TOAST STACK -->
   <div class="toast-stack" id="toast-stack"></div>
@@ -577,6 +654,7 @@ const S = {
     {id:4,desc:'Aluguel',amount:1200,cat:'Moradia',type:'expense',date:'10/03'},
   ],
   msgs:[],
+  apiKey: localStorage.getItem('nexus_api_key')||'',
 };
 
 // ═══════════════════════════════════════════════
@@ -874,9 +952,18 @@ async function sendMsg(){
     try{ sysPrompt = await buildSys(); }
     catch(memErr){ console.warn('NEXUS mem ctx error (non-fatal):',memErr); sysPrompt = buildSysBasic(); }
 
+    if(!S.apiKey){
+      pushMsg({role:'nexus',tp:'n',text:'**Chave de API não configurada.** Vá em ⚙ Configurações → chave da API e insira sua chave Anthropic para ativar a IA.'});
+      S.busy=false; document.getElementById('send-btn').disabled=false; renderMsgs(); return;
+    }
     const res=await fetch('https://api.anthropic.com/v1/messages',{
       method:'POST',
-      headers:{'Content-Type':'application/json'},
+      headers:{
+        'Content-Type':'application/json',
+        'x-api-key': S.apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
       body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:sysPrompt,messages:[...hist,{role:'user',content:msg}]})
     });
 
@@ -1161,6 +1248,17 @@ function renderSettings(el){
         <div class="srow"><div class="sr-ic" style="background:rgba(0,229,255,.08)">⏱</div><div class="sr-inf"><div class="sr-t">Expiração da sessão</div><div class="sr-s">${SESSION_OPTIONS.find(o=>o.value===getCurrentExpiry())?.label||'Nunca'}</div></div><div style="display:flex;flex-wrap:wrap;gap:4px;margin-left:8px">${SESSION_OPTIONS.map(o=>`<span class="session-pill ${getCurrentExpiry()===o.value?'on':''}" onclick="setSessionExpiry(${o.value})">${o.label}</span>`).join('')}</div></div>
         <div class="srow"><div class="sr-ic" style="background:rgba(124,131,255,.08)">🔐</div><div class="sr-inf"><div class="sr-t">PIN de acesso</div><div class="sr-s">${S.privacy.pinEnabled?'Ativo':'Desativado — ative se quiser'}</div></div><div class="tgl ${S.privacy.pinEnabled?'on':''}" onclick="togPIN()"><div class="tgl-th"></div></div></div>
         <div class="srow" style="padding-bottom:8px"><div class="sr-ic" style="background:rgba(0,229,255,.08)">📤</div><div class="sr-inf"><div class="sr-t">Exportar dados</div><div class="sr-s">Backup completo em JSON</div></div><button class="btn sm" onclick="exportData()">Exportar</button></div>
+      </div>
+      <div class="slbl">Chave de API</div>
+      <div class="card">
+        <div class="srow" style="padding-top:8px;padding-bottom:8px">
+          <div class="sr-ic" style="background:rgba(0,229,255,.08)">🔑</div>
+          <div class="sr-inf">
+            <div class="sr-t">Anthropic API Key</div>
+            <div class="sr-s">${S.apiKey ? '••••••••••••'+S.apiKey.slice(-4) : 'Não configurada'}</div>
+          </div>
+          <button class="btn sm" onclick="openModal('apiKey')">Configurar</button>
+        </div>
       </div>
       <div class="dz"><div class="dz-t">⚠ ZONA DE PERIGO</div><button class="btn danger full" onclick="openModal('reset')">Resetar todos os dados</button></div>
     </div>
@@ -1465,6 +1563,22 @@ function openModal(type,extra){
     <p style="font-size:13px;color:var(--tx2);margin-bottom:14px;line-height:1.6">Digite 4 dígitos. O PIN será pedido ao abrir o app.</p>
     <div class="fg"><label class="fl2">Novo PIN</label><input class="inp" id="pin-new" type="password" maxlength="4" placeholder="····" oninput="this.value=this.value.replace(/\\D/g,'').slice(0,4)"></div>
     <button class="btn full" onclick="savePin()">Ativar PIN</button>`;
+  } else if(type==='apiKey'){
+    body.innerHTML=`<div class="mt2">🔑 Chave de API <button class="mc2" onclick="closeModal()">✕</button></div>
+    <p style="font-size:13px;color:var(--tx2);margin-bottom:14px;line-height:1.6">Insira sua chave da Anthropic para ativar a IA.<br>Obtenha em <a href="https://console.anthropic.com" target="_blank" style="color:var(--cy)">console.anthropic.com</a></p>
+    <div class="fg"><label class="fl2">API Key</label>
+      <div class="pass-wrap">
+        <input class="inp" id="apikey-inp" type="password" placeholder="sk-ant-..." value="${S.apiKey}"
+          style="padding-right:44px">
+        <button class="pass-toggle" type="button" onclick="togglePass('apikey-inp','eye-api')" title="Ver/ocultar">
+          <span id="eye-api">👁</span>
+        </button>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:4px">
+      <button class="btn full" onclick="saveApiKey()">Salvar</button>
+      ${S.apiKey?'<button class="btn ghost" onclick="clearApiKey()">Remover</button>':''}
+    </div>`;
   } else if(type==='reset'){
     body.innerHTML=`<div class="mt2">⚠ Reset Total <button class="mc2" onclick="closeModal()">✕</button></div>
     <div class="cbx">Esta ação é <strong style="color:var(--rd)">irreversível</strong>. Todos os dados serão apagados: tarefas, hábitos, eventos, metas e transações.</div>
@@ -1498,6 +1612,18 @@ function submitGoal(){const t=document.getElementById('g-t').value.trim();if(!t)
 function submitEvent(){const t=document.getElementById('e-t').value.trim();if(!t)return;S.events.push({id:Date.now(),title:t,date:document.getElementById('e-d').value,time:document.getElementById('e-h').value,category:document.getElementById('e-c').value,recurrence:document.getElementById('e-r').value});toast('Evento agendado ✔');closeModal();renderHUD();refreshPanel();autoSave();}
 function submitTxn(){const d=document.getElementById('t-d').value.trim(),v=document.getElementById('t-v').value;if(!d||!v)return;S.txns.push({id:Date.now(),desc:d,amount:parseFloat(v),cat:document.getElementById('t-c').value,type:_txnType,date:new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})});toast('Lançamento registrado ✔');closeModal();renderHUD();refreshPanel();autoSave();}
 function submitHabit(){const n=document.getElementById('h-n').value.trim();if(!n)return;S.habits.push({id:Date.now(),name:n,emoji:document.getElementById('h-e').value,streak:0,done:false});toast('Hábito criado ✔');closeModal();renderHUD();}
+function saveApiKey(){
+  const val=(document.getElementById('apikey-inp')||{}).value?.trim();
+  if(!val){toast('Insira uma chave válida.');return;}
+  S.apiKey=val;
+  localStorage.setItem('nexus_api_key',val);
+  toast('Chave salva ✔');closeModal();refreshPanel();
+}
+function clearApiKey(){
+  S.apiKey='';
+  localStorage.removeItem('nexus_api_key');
+  toast('Chave removida.');closeModal();refreshPanel();
+}
 function saveProfile(){S.profile={...S.profile,name:document.getElementById('p-n').value||S.profile.name,profession:document.getElementById('p-p').value,lifeGoalShort:document.getElementById('p-gs').value,lifeGoalMid:document.getElementById('p-gm').value,lifeGoalLong:document.getElementById('p-gl').value,language:document.getElementById('p-l').value,timezone:document.getElementById('p-tz').value};toast('Perfil atualizado ✔');closeModal();refreshPanel();}
 function savePin(){const p=document.getElementById('pin-new').value;if(p.length!==4){toast('PIN deve ter 4 dígitos');return;}S.privacy={...S.privacy,pinEnabled:true,pin:p};toast('PIN ativado 🔐');closeModal();refreshPanel();}
 function saveSilent(){S.notif.silentStart=document.getElementById('sil-s').value;S.notif.silentEnd=document.getElementById('sil-e').value;toast('Horário salvo ✔');closeModal();refreshPanel();}
@@ -1557,6 +1683,10 @@ function init(){
       stats:[{val:`${tdone()}/${S.tasks.length}`,lbl:'Tarefas',cls:'hi'},{val:`${hdone()}/${S.habits.length}`,lbl:'Hábitos',cls:'ok'},{val:fmt(bal()),lbl:'Saldo',cls:overLim()?'wn':'hi'},{val:`${S.events.length}`,lbl:'Eventos',cls:'hi'}],
       rows:[{label:'Tarefas',pct:tp,cls:tp>60?'g':''},{label:'Hábitos',pct:hp,cls:hp>60?'g':''},{label:S.goals[0].title.slice(0,32)+'…',pct:pct(S.goals[0])},{label:'Meta economia',pct:Math.min(100,Math.round(Math.max(0,bal())/SAVINGS_GOAL*100)),cls:'g'}]}});
   pushMsg({role:'nexus',tp:'n',text:`Página **⚙ Config** disponível na barra inferior. Digite **/** para ver todos os comandos ou converse comigo diretamente.`});
+  if(!S.apiKey){
+    setTimeout(()=>pushMsg({role:'nexus',tp:'clr',
+      text:'**Chave de API não configurada.** Vá em ⚙ Configurações → **Chave de API** e insira sua chave Anthropic para ativar a IA.'}),600);
+  }
 
   // Chat input auto-resize
   const ni=document.getElementById('chat-inp');
@@ -1633,16 +1763,51 @@ function init(){
 
 
 // ═══════════════════════════════════════════════
+// ONBOARDING
+// ═══════════════════════════════════════════════
+function obShow(){
+  document.getElementById('ob-screen').classList.remove('hidden');
+}
+function obHide(){
+  document.getElementById('ob-screen').classList.add('hidden');
+}
+function obToggleKey(){
+  const inp = document.getElementById('ob-key-inp');
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+}
+function obSubmit(){
+  const val = (document.getElementById('ob-key-inp').value||'').trim();
+  const err = document.getElementById('ob-err');
+  if(!val.startsWith('sk-ant-') && !val.startsWith('sk-')){
+    err.classList.add('show'); return;
+  }
+  S.apiKey = val;
+  localStorage.setItem('nexus_api_key', val);
+  obHide();
+  toast('NEXUS ativado ✔');
+  // Remove the API key warning message if it exists
+  S.msgs = S.msgs.filter(m => !m.text?.includes('Chave de API não configurada'));
+  renderMsgs();
+}
+function obSkip(){
+  obHide();
+}
+
+// ═══════════════════════════════════════════════
 // BOOTSTRAP
 // ═══════════════════════════════════════════════
 (function bootstrap(){
-  // Listen for app visibility changes (PWA reopen)
+  // Listen for app visibility changes
   document.addEventListener('visibilitychange',()=>{
     if(document.visibilityState==='visible'){
       renderHUD(); computeAlerts();
     }
   });
   init();
+  // Show onboarding on first access (no API key configured)
+  if(!S.apiKey){
+    setTimeout(obShow, 800);
+  }
 })();
 </script>
 </body>
