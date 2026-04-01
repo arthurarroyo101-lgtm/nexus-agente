@@ -1583,10 +1583,22 @@ function init(){
   updateOnlineStatus();
 
   // Register Service Worker (PWA)
+  // Register Service Worker only on real hosting (not in preview environments)
   if('serviceWorker' in navigator){
-    navigator.serviceWorker.register('./sw.js')
-      .then(()=>console.log('NEXUS SW registered'))
-      .catch(e=>console.warn('NEXUS SW error:',e));
+    const isPreview = location.hostname.includes('claudeusercontent.com') ||
+                      location.hostname === 'localhost' ||
+                      location.protocol === 'file:';
+    if(!isPreview){
+      navigator.serviceWorker.register('./sw.js', {scope: './'})
+        .then(reg => {
+          console.log('NEXUS SW registered — scope:', reg.scope);
+          // Check for updates on each load
+          reg.update();
+        })
+        .catch(e => console.warn('NEXUS SW registration failed:', e.message));
+    } else {
+      console.log('NEXUS SW skipped — preview environment');
+    }
   }
 }
 

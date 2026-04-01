@@ -1,71 +1,77 @@
-// NEXUS Service Worker v12 — Offline Support
-// IMPORTANT: Never intercept api.anthropic.com — let browser handle AI calls directly
-const CACHE = 'nexus-v12';
+// NEXUS Service Worker v13
+// Handles offline caching for GitHub Pages hosting
+const CACHE_NAME = 'nexus-v13';
 const ASSETS = [
   './',
   './index.html',
   './manifest.json',
   './icon-192.png',
   './icon-512.png',
+  'https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap'
 ];
 
-// Install — cache app shell
+// ── Install: cache all static assets ─────────────────────────────────────────
 self.addEventListener('install', e => {
+  console.log('[NEXUS SW] Installing v13...');
   e.waitUntil(
-    caches.open(CACHE).then(cache =>
-      cache.addAll(ASSETS).catch(err =>
-        console.warn('NEXUS SW: partial cache fail', err)
-      )
-    )
+    caches.open(CACHE_NAME)
+      .then(cache => cache.addAll(ASSETS))
+      .then(() => self.skipWaiting())
+      .catch(err => console.warn('[NEXUS SW] Cache partial fail:', err))
   );
-  self.skipWaiting();
 });
 
-// Activate — clean old caches
+// ── Activate: clean up old caches ────────────────────────────────────────────
 self.addEventListener('activate', e => {
+  console.log('[NEXUS SW] Activating v13...');
   e.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
-    )
+    caches.keys()
+      .then(keys => Promise.all(
+        keys.filter(k => k !== CACHE_NAME).map(k => {
+          console.log('[NEXUS SW] Deleting old cache:', k);
+          return caches.delete(k);
+        })
+      ))
+      .then(() => self.clients.claim())
   );
-  self.clients.claim();
 });
 
-// Fetch strategy
+// ── Fetch: smart caching strategy ────────────────────────────────────────────
 self.addEventListener('fetch', e => {
   const url = e.request.url;
 
-  // ⚠️ NEVER intercept AI API or any external API — let them go directly to network
-  if (url.includes('api.anthropic.com') ||
-      url.includes('fonts.googleapis.com') ||
-      url.includes('fonts.gstatic.com') ||
-      url.includes('api.github.com')) {
-    return; // no e.respondWith = browser handles normally
-  }
+  // ✅ Never intercept AI API — let browser handle directly (avoids 404 errors)
+  if (url.includes('api.anthropic.com')) return;
 
-  // App shell assets — cache first, network fallback
+  // ✅ Never intercept Google Fonts requests
+  if (url.includes('fonts.googleapis.com') || url.includes('fonts.gstatic.com')) return;
+
+  // App shell — cache first, network fallback
   e.respondWith(
-    caches.match(e.request).then(cached => {
-      if (cached) return cached;
+    caches.match(e.request)
+      .then(cached => {
+        if (cached) return cached;
 
-      return fetch(e.request).then(response => {
-        // Cache valid same-origin responses
-        if (response && response.status === 200 && response.type === 'basic') {
-          const clone = response.clone();
-          caches.open(CACHE).then(cache => cache.put(e.request, clone));
-        }
-        return response;
-      }).catch(() => {
-        // Offline fallback — serve app shell for navigation requests
-        if (e.request.destination === 'document' || e.request.mode === 'navigate') {
-          return caches.match('./index.html');
-        }
-      });
-    })
+        return fetch(e.request)
+          .then(response => {
+            // Only cache valid same-origin responses
+            if (response && response.status === 200 && response.type === 'basic') {
+              const clone = response.clone();
+              caches.open(CACHE_NAME).then(cache => cache.put(e.request, clone));
+            }
+            return response;
+          })
+          .catch(() => {
+            // Offline fallback for navigation requests
+            if (e.request.destination === 'document' || e.request.mode === 'navigate') {
+              return caches.match('./index.html');
+            }
+          });
+      })
   );
 });
 
-// Push notifications
+// ── Push Notifications ────────────────────────────────────────────────────────
 self.addEventListener('push', e => {
   const data = e.data?.json() || { title: 'NEXUS', body: 'Nova notificação' };
   e.waitUntil(
