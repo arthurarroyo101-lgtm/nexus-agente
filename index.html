@@ -2,32 +2,8 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>NEXUS — Agente Pessoal</title>
-
-<!-- Content Security Policy -->
-<meta http-equiv="Content-Security-Policy" content="
-  default-src 'self';
-  script-src 'self' 'unsafe-inline';
-  style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
-  font-src 'self' https://fonts.gstatic.com;
-  connect-src 'self' https://api.anthropic.com;
-  img-src 'self' data:;
-  worker-src 'self';
-  manifest-src 'self';
-  frame-ancestors 'none';
-">
-
-<!-- PWA -->
-<link rel="manifest" href="./manifest.json">
-<meta name="theme-color" content="#00e5ff">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="NEXUS">
-<link rel="apple-touch-icon" href="./icon-192.png">
-<meta name="google" content="notranslate">
-
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -401,7 +377,52 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--tx);font-
 .pin-k:active{transform:scale(.95)}
 .pin-k.del{font-size:12px;color:var(--tx3)}
 
+/* ══ LOGIN MODAL ══════════════════════════════════════════ */
+.login-backdrop{position:fixed;inset:0;z-index:600;background:rgba(5,12,24,.92);backdrop-filter:blur(16px);display:flex;align-items:center;justify-content:center;padding:20px}
+.login-backdrop.hidden{display:none}
+.login-box{background:var(--bg1);border:1px solid var(--brd);border-radius:var(--r);padding:32px 28px;width:100%;max-width:400px;max-height:90vh;overflow-y:auto;animation:lboxin .35s cubic-bezier(.34,1.4,.64,1)}
+@keyframes lboxin{from{transform:translateY(30px) scale(.96);opacity:0}to{transform:translateY(0) scale(1);opacity:1}}
+.login-orb-wrap{display:flex;flex-direction:column;align-items:center;gap:10px;margin-bottom:28px}
+.login-orb{width:56px;height:56px;border-radius:50%;background:radial-gradient(circle,rgba(0,229,255,.22),transparent);border:2px solid rgba(0,229,255,.4);display:flex;align-items:center;justify-content:center;position:relative}
+.login-orb::before{content:'';position:absolute;inset:0;border-radius:50%;border:1.5px solid rgba(0,229,255,.35);animation:orbsp 9s linear infinite}
+.login-orb-c{width:9px;height:9px;border-radius:50%;background:var(--cy);box-shadow:0 0 12px var(--cy);animation:orbp 2.5s ease-in-out infinite;z-index:1}
+.login-title{font-family:var(--FD);font-size:22px;font-weight:800;letter-spacing:5px;text-transform:uppercase;color:var(--tx)}
+.login-title em{color:var(--cy);font-style:normal;text-shadow:0 0 12px var(--cg)}
+.login-sub{font-size:13px;color:var(--tx3);font-family:var(--FM);letter-spacing:.5px;margin-top:2px}
+.login-tabs{display:flex;gap:0;background:var(--bg2);border-radius:var(--rs);padding:3px;margin-bottom:22px;border:1px solid var(--brd2)}
+.ltab{flex:1;padding:8px;border-radius:6px;background:transparent;border:none;color:var(--tx3);font-size:13px;font-weight:500;font-family:var(--FB);cursor:pointer;transition:all var(--T)}
+.ltab.on{background:var(--bg1);color:var(--cy);border:1px solid var(--brd)}
+.login-fg{margin-bottom:14px}
+.login-fl{font-size:10px;font-weight:700;color:var(--tx3);letter-spacing:1.5px;text-transform:uppercase;font-family:var(--FM);margin-bottom:6px;display:block}
+.login-inp{width:100%;background:var(--bg2);border:1px solid var(--brd2);border-radius:var(--rs);padding:12px 16px;font-size:14px;color:var(--tx);font-family:var(--FB);outline:none;transition:border-color var(--T),box-shadow var(--T)}
+.login-inp:focus{border-color:rgba(0,229,255,.4);box-shadow:0 0 0 3px rgba(0,229,255,.07)}
+.login-inp::placeholder{color:var(--tx3)}
+.login-row{display:flex;align-items:center;gap:10px;margin-bottom:18px}
+.login-check{width:18px;height:18px;border-radius:4px;border:1.5px solid var(--brd);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:10px;transition:all var(--T);flex-shrink:0}
+.login-check.on{background:rgba(0,229,255,.15);border-color:var(--cy);color:var(--cy)}
+.login-check-lbl{font-size:13px;color:var(--tx2);cursor:pointer}
+.login-btn{width:100%;padding:13px;background:linear-gradient(135deg,rgba(0,229,255,.22),rgba(0,180,255,.14));border:1px solid rgba(0,229,255,.4);border-radius:var(--rs);color:var(--cy);font-size:15px;font-weight:600;font-family:var(--FB);cursor:pointer;transition:all var(--T);box-shadow:0 0 20px rgba(0,229,255,.15)}
+.login-btn:hover{background:linear-gradient(135deg,rgba(0,229,255,.32),rgba(0,180,255,.22));box-shadow:0 0 30px rgba(0,229,255,.28);transform:translateY(-1px)}
+.login-link{background:none;border:none;color:var(--cy);font-size:12px;font-family:var(--FM);cursor:pointer;text-decoration:underline;padding:0;transition:opacity var(--T)}
+.login-link:hover{opacity:.7}
+.login-divider{display:flex;align-items:center;gap:10px;margin:14px 0;color:var(--tx3);font-size:11px;font-family:var(--FM)}
+.login-divider::before,.login-divider::after{content:'';flex:1;height:1px;background:var(--brd2)}
+.guest-btn{width:100%;padding:10px;background:transparent;border:1px solid var(--brd2);border-radius:var(--rs);color:var(--tx3);font-size:13px;font-weight:500;font-family:var(--FB);cursor:pointer;transition:all var(--T)}
+.guest-btn:hover{border-color:var(--brd);color:var(--tx2);background:var(--bg2)}
+.login-err{background:rgba(255,82,82,.08);border:1px solid rgba(255,82,82,.2);border-radius:var(--rs);padding:10px 14px;font-size:13px;color:var(--rd);margin-bottom:14px;display:none}
+.login-err.show{display:block}
 
+/* Welcome screen */
+.welcome-screen{position:fixed;inset:0;z-index:550;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;animation:fadeIn .4s ease;text-align:center;padding:32px}
+.welcome-screen.hidden{display:none}
+.welcome-av{width:80px;height:80px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--FD);font-size:28px;font-weight:800;color:var(--cy);border:2px solid rgba(0,229,255,.4);box-shadow:0 0 28px rgba(0,229,255,.22);animation:orbp 2.5s ease-in-out infinite}
+.welcome-greeting{font-size:14px;color:var(--cy);font-family:var(--FM);letter-spacing:2px;text-transform:uppercase}
+.welcome-name{font-family:var(--FD);font-size:28px;font-weight:800;color:var(--tx)}
+.welcome-msg{font-size:14px;color:var(--tx2);max-width:300px;line-height:1.6}
+.welcome-bar{width:200px;height:3px;background:var(--bg3);border-radius:2px;overflow:hidden}
+.welcome-bar-fill{height:100%;width:0;background:linear-gradient(90deg,var(--cy),var(--pu));animation:wload 2s ease forwards}
+@keyframes wload{from{width:0}to{width:100%}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
 
 /* User menu in header */
 .user-menu{position:relative}
@@ -416,99 +437,53 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--tx);font-
 .ud-item.danger{color:var(--rd)}
 .ud-item.danger:hover{background:rgba(255,82,82,.07)}
 
-
-/* Session settings row */
-.session-pill{font-size:11px;font-family:var(--FM);padding:4px 12px;border-radius:20px;cursor:pointer;border:1px solid var(--brd2);color:var(--tx3);background:var(--bg2);transition:all var(--T);margin-right:5px}
-.session-pill:hover{color:var(--tx2);border-color:var(--brd)}
-.session-pill.on{background:rgba(0,229,255,.1);border-color:rgba(0,229,255,.28);color:var(--cy)}
-/* Notif badge on login */
-.notif-banner{background:rgba(0,229,255,.06);border:1px solid rgba(0,229,255,.18);border-radius:var(--rs);padding:10px 14px;font-size:12.5px;color:var(--tx2);display:flex;align-items:center;gap:9px;margin-bottom:14px}
-.notif-banner-dot{width:6px;height:6px;border-radius:50%;background:var(--cy);box-shadow:0 0 6px var(--cy);flex-shrink:0}
-
-/* ── ONBOARDING ─────────────────────────────── */
-.ob-screen{position:fixed;inset:0;z-index:300;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:24px}
-.ob-screen.hidden{display:none}
-.ob-box{width:100%;max-width:520px;background:var(--bg1);border:1px solid var(--brd);border-radius:var(--r);padding:36px 32px;position:relative;overflow:hidden}
-.ob-box::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(0,229,255,.07),transparent);pointer-events:none}
-.ob-logo{display:flex;flex-direction:column;align-items:center;gap:10px;margin-bottom:28px}
-.ob-orb{width:52px;height:52px;border-radius:50%;border:2px solid rgba(0,229,255,.4);display:flex;align-items:center;justify-content:center;position:relative}
-.ob-orb::before{content:'';position:absolute;inset:0;border-radius:50%;animation:orbsp 9s linear infinite;border:1.5px solid rgba(0,229,255,.3)}
-.ob-orb-c{width:10px;height:10px;border-radius:50%;background:var(--cy);box-shadow:0 0 12px var(--cy);animation:orbp 2.5s ease-in-out infinite}
-.ob-title{font-family:var(--FD);font-size:24px;font-weight:800;letter-spacing:5px;color:var(--tx)}
-.ob-title em{color:var(--cy);font-style:normal}
-.ob-sub{font-size:13px;color:var(--tx3);font-family:var(--FM);letter-spacing:.5px}
-.ob-steps{display:flex;flex-direction:column;gap:14px;margin-bottom:24px}
-.ob-step{display:flex;align-items:flex-start;gap:14px;padding:13px 15px;background:var(--bg2);border:1px solid var(--brd2);border-radius:var(--rs)}
-.ob-step-n{width:24px;height:24px;border-radius:50%;background:rgba(0,229,255,.12);border:1px solid rgba(0,229,255,.3);display:flex;align-items:center;justify-content:center;font-family:var(--FM);font-size:11px;font-weight:700;color:var(--cy);flex-shrink:0;margin-top:1px}
-.ob-step-inf{flex:1}
-.ob-step-t{font-size:13.5px;font-weight:600;margin-bottom:3px}
-.ob-step-d{font-size:12px;color:var(--tx3);line-height:1.5}
-.ob-step-d a{color:var(--cy);text-decoration:none}
-.ob-step-d a:hover{text-decoration:underline}
-.ob-key-wrap{position:relative;margin-top:8px}
-.ob-key-inp{width:100%;background:var(--bg3);border:1px solid var(--brd);border-radius:var(--rs);padding:9px 42px 9px 13px;font-size:13px;color:var(--tx);font-family:var(--FM);outline:none;transition:border-color var(--T)}
-.ob-key-inp:focus{border-color:rgba(0,229,255,.4);box-shadow:0 0 0 2px rgba(0,229,255,.06)}
-.ob-key-inp::placeholder{color:var(--tx3)}
-.ob-eye{position:absolute;right:11px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--tx3);font-size:15px;transition:color var(--T)}
-.ob-eye:hover{color:var(--cy)}
-.ob-btn{width:100%;background:linear-gradient(135deg,rgba(0,229,255,.18),rgba(0,180,255,.1));border:1px solid rgba(0,229,255,.38);border-radius:var(--rs);padding:13px;color:var(--cy);font-size:14px;font-weight:600;font-family:var(--FD);letter-spacing:2px;cursor:pointer;transition:all var(--T);margin-top:6px}
-.ob-btn:hover{background:linear-gradient(135deg,rgba(0,229,255,.28),rgba(0,180,255,.16));transform:translateY(-1px);box-shadow:0 4px 18px rgba(0,229,255,.15)}
-.ob-btn:disabled{opacity:.35;cursor:not-allowed;transform:none;box-shadow:none}
-.ob-skip{display:block;text-align:center;margin-top:14px;font-size:11px;color:var(--tx3);font-family:var(--FM);cursor:pointer;transition:color var(--T)}
-.ob-skip:hover{color:var(--tx2)}
-.ob-err{font-size:12px;color:var(--rd);font-family:var(--FM);margin-top:6px;display:none}
-.ob-err.show{display:block}
+/* Locked app overlay */
+.app-locked{pointer-events:none;filter:blur(3px) brightness(.4);user-select:none}
 </style>
 </head>
 <body>
 <div class="nebula"></div>
 <div class="scan"></div>
 
-<div class="app" id="app">
-
-  <!-- ONBOARDING SCREEN -->
-  <div class="ob-screen hidden" id="ob-screen">
-    <div class="ob-box">
-      <div class="ob-logo">
-        <div class="ob-orb"><div class="ob-orb-c"></div></div>
-        <div class="ob-title">NEX<em>US</em></div>
-        <div class="ob-sub">AGENTE PESSOAL · CONFIGURAÇÃO INICIAL</div>
-      </div>
-      <div class="ob-steps">
-        <div class="ob-step">
-          <div class="ob-step-n">1</div>
-          <div class="ob-step-inf">
-            <div class="ob-step-t">Crie sua conta Anthropic</div>
-            <div class="ob-step-d">Acesse <a href="https://console.anthropic.com" target="_blank">console.anthropic.com</a> e crie uma conta gratuita.</div>
-          </div>
-        </div>
-        <div class="ob-step">
-          <div class="ob-step-n">2</div>
-          <div class="ob-step-inf">
-            <div class="ob-step-t">Gere uma chave de API</div>
-            <div class="ob-step-d">No console, vá em <strong style="color:var(--cy)">API Keys → Create Key</strong>. Copie a chave gerada.</div>
-          </div>
-        </div>
-        <div class="ob-step">
-          <div class="ob-step-n">3</div>
-          <div class="ob-step-inf">
-            <div class="ob-step-t">Cole sua chave abaixo</div>
-            <div class="ob-step-d">Ela fica salva apenas no seu computador — nunca enviada a terceiros.</div>
-            <div class="ob-key-wrap">
-              <input class="ob-key-inp" id="ob-key-inp" type="password"
-                placeholder="sk-ant-api03-..."
-                oninput="document.getElementById('ob-err').classList.remove('show')"
-                onkeydown="if(event.key==='Enter')obSubmit()">
-              <button class="ob-eye" onclick="obToggleKey()" title="Ver/ocultar">👁</button>
-            </div>
-            <div class="ob-err" id="ob-err">Chave inválida — deve começar com sk-ant-</div>
-          </div>
-        </div>
-      </div>
-      <button class="ob-btn" id="ob-btn" onclick="obSubmit()">▶ INICIAR NEXUS</button>
-      <span class="ob-skip" onclick="obSkip()">Configurar depois (IA desativada)</span>
+<!-- ══ LOGIN MODAL ══════════════════════════════════════ -->
+<div class="login-backdrop" id="login-backdrop">
+  <div class="login-box" id="login-box">
+    <div class="login-orb-wrap">
+      <div class="login-orb"><div class="login-orb-c"></div></div>
+      <div class="login-title">NEX<em>US</em></div>
+      <div class="login-sub" id="login-sub">Acesse seu agente pessoal</div>
     </div>
+    <div class="login-tabs">
+      <button class="ltab on" id="tab-in" onclick="switchTab('login')">Entrar</button>
+      <button class="ltab" id="tab-up" onclick="switchTab('register')">Criar conta</button>
+    </div>
+    <div class="login-err" id="login-err"></div>
+    <form id="login-form" autocomplete="on" onsubmit="return false">
+      <div id="form-fields"></div>
+      <div class="login-row" id="remember-row">
+        <div class="login-check" id="remember-chk" onclick="toggleRemember()"></div>
+        <span class="login-check-lbl" onclick="toggleRemember()">Manter sessão ativa</span>
+      </div>
+      <button class="login-btn" id="login-submit-btn" onclick="handleAuth()">Entrar</button>
+    </form>
+    <div style="text-align:center;margin-top:12px" id="forgot-wrap">
+      <button class="login-link" onclick="switchTab('recover')">Esqueci minha senha</button>
+    </div>
+    <div class="login-divider">ou</div>
+    <button class="guest-btn" onclick="enterGuest()">👁 Entrar como convidado (somente leitura)</button>
   </div>
+</div>
+
+<!-- ══ WELCOME SCREEN ═══════════════════════════════════ -->
+<div class="welcome-screen hidden" id="welcome-screen">
+  <div class="welcome-av" id="welcome-av">N</div>
+  <div class="welcome-greeting" id="welcome-greeting">BOM DIA</div>
+  <div class="welcome-name" id="welcome-name">Astronauta</div>
+  <div class="welcome-msg" id="welcome-msg">Sua rotina está pronta para hoje.</div>
+  <div class="welcome-bar"><div class="welcome-bar-fill"></div></div>
+</div>
+
+<div class="app" id="app">
 
   <!-- TOAST STACK -->
   <div class="toast-stack" id="toast-stack"></div>
@@ -530,7 +505,18 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--tx);font-
         <div class="brand-name">NEX<em>US</em></div>
       </div>
       <div class="st-pill" id="st-pill"><div class="sdot"></div><span id="st-label">ONLINE</span></div>
-
+      <div class="user-menu" id="user-menu" style="display:none">
+        <div class="user-chip" onclick="toggleUserMenu()">
+          <div class="user-av" id="header-av">N</div>
+          <span id="header-name">Usuário</span>
+          <span style="font-size:9px;margin-left:2px">▾</span>
+        </div>
+        <div class="user-dropdown" id="user-dropdown">
+          <div class="ud-item" onclick="openUserSettings()">⚙ Configurações</div>
+          <div class="ud-item" onclick="switchUser()">🔄 Trocar usuário</div>
+          <div class="ud-item danger" onclick="logout()">↩ Sair</div>
+        </div>
+      </div>
       <div class="hdr-r">
         <button class="hbtn" id="pm-btn" title="Modo Privado" onclick="togglePM()">🔒</button>
         <button class="hbtn" id="focus-btn" title="Modo Foco" onclick="toggleFocus()">⊡</button>
@@ -598,13 +584,18 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--tx);font-
 
 <script>
 // ═══════════════════════════════════════════════
+// 🔑 SUA CHAVE DA API — cole aqui
+// Obtenha em: https://console.anthropic.com
+// ═══════════════════════════════════════════════
+const NEXUS_API_KEY = 'SUA_CHAVE_AQUI';
+
+// ═══════════════════════════════════════════════
 // STATE
 // ═══════════════════════════════════════════════
 const TODAY = new Date();
 const todayStr = () => { const d=new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; };
 const clock = () => new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
 const fmt = v => new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(v);
-const escHtml = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 const pct = g => g.sub.length ? Math.round(g.sub.filter(s=>s.d).length/g.sub.length*100) : 0;
 const getInits = n => n.trim().split(' ').slice(0,2).map(x=>x[0]||'').join('').toUpperCase()||'N';
 function offDay(n){const d=new Date(TODAY);d.setDate(d.getDate()+n);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
@@ -654,7 +645,6 @@ const S = {
     {id:4,desc:'Aluguel',amount:1200,cat:'Moradia',type:'expense',date:'10/03'},
   ],
   msgs:[],
-  apiKey: localStorage.getItem('nexus_api_key')||'',
 };
 
 // ═══════════════════════════════════════════════
@@ -874,37 +864,34 @@ Metas: ${JSON.stringify(S.goals.map(g=>({t:g.title,prog:pct(g)+'%',dl:g.deadline
 Finanças: receita ${fmt(inc())} | gastos ${fmt(exp())} | saldo ${fmt(bal())}${overLim()?' ⚠':''}
 Hoje: ${todayStr()}`;
 }
-// Fallback system prompt (no memory context) — used when IndexedDB fails
 function buildSysBasic(){
+  return 'Você é o NEXUS — agente de IA pessoal space-tech. Responda SEMPRE em português brasileiro.\n'
+    + 'Usuário: '+S.profile.name+'. Tom: '+S.profile.commStyle+'.\n'
+    + 'Use **negrito** para destaques.\n'
+    + 'DADOS: '+buildCtx();
+}
+
+function buildSys(){
   return `Você é o NEXUS — agente de IA pessoal space-tech. Responda SEMPRE em português brasileiro.
 Usuário: ${S.profile.name}${S.profile.profession?' ('+S.profile.profession+')':''}. Tom: ${S.profile.commStyle}.
 Use **negrito** para destaques. Seja completo sem exagerar.
-ÁREAS: Metas · Finanças · Hábitos · Tarefas · Calendário
+
+ÁREAS PRIORITÁRIAS: 1.Metas 2.Finanças 3.Hábitos 4.Tarefas 5.Calendário
+
+RESPOSTA: 1)Resumo do que entendeu 2)Resposta 3)Próximo passo (opcional). Para ambiguidade: pergunte antes de agir.
+
+AÇÕES (use SOMENTE se solicitado):
+<nexus_action>{"type":"add_task","payload":{"title":"...","priority":"alta|média|baixa"}}</nexus_action>
+<nexus_action>{"type":"complete_task","payload":{"title":"..."}}</nexus_action>
+<nexus_action>{"type":"add_goal","payload":{"title":"...","deadline":"YYYY-MM-DD","category":"Desenvolvimento|Finanças|Saúde|Carreira|Outro"}}</nexus_action>
+<nexus_action>{"type":"add_habit","payload":{"name":"...","emoji":"..."}}</nexus_action>
+<nexus_action>{"type":"mark_habit","payload":{"name":"..."}}</nexus_action>
+<nexus_action>{"type":"add_transaction","payload":{"desc":"...","amount":"0","category":"Alimentação|Moradia|Saúde|Lazer|Assinaturas|Transporte|Outro","type":"income|expense"}}</nexus_action>
+<nexus_action>{"type":"add_event","payload":{"title":"...","date":"YYYY-MM-DD","time":"HH:MM","category":"trabalho|pessoal|saúde|outro","recurrence":"none|daily|weekly|monthly"}}</nexus_action>
+
 DADOS: ${buildCtx()}`;
 }
 
-async function buildSys(){
-  try{
-    const memCtx = await memBuildContext();
-    return 'Você é o NEXUS — agente de IA pessoal space-tech. Responda SEMPRE em português brasileiro.\n'
-      + 'Usuário: '+S.profile.name+(S.profile.profession?' ('+S.profile.profession+')':'')+'. Tom: '+S.profile.commStyle+'.\n'
-      + 'Use **negrito** para destaques. Seja completo sem exagerar.\n\n'
-      + 'ÁREAS PRIORITÁRIAS: 1.Metas 2.Finanças 3.Hábitos 4.Tarefas 5.Calendário\n\n'
-      + 'RESPOSTA: 1)Resumo do que entendeu 2)Resposta 3)Próximo passo (opcional). Para ambiguidade: pergunte antes de agir.\n\n'
-      + 'AÇÕES (use SOMENTE se solicitado):\n'
-      + '<nexus_action>{"type":"add_task","payload":{"title":"...","priority":"alta|média|baixa"}}</nexus_action>\n'
-      + '<nexus_action>{"type":"complete_task","payload":{"title":"..."}}</nexus_action>\n'
-      + '<nexus_action>{"type":"add_goal","payload":{"title":"...","deadline":"YYYY-MM-DD","category":"Desenvolvimento|Finanças|Saúde|Carreira|Outro"}}</nexus_action>\n'
-      + '<nexus_action>{"type":"add_habit","payload":{"name":"...","emoji":"..."}}</nexus_action>\n'
-      + '<nexus_action>{"type":"mark_habit","payload":{"name":"..."}}</nexus_action>\n'
-      + '<nexus_action>{"type":"add_transaction","payload":{"desc":"...","amount":"0","category":"Alimentação|Moradia|Saúde|Lazer|Assinaturas|Transporte|Outro","type":"income|expense"}}</nexus_action>\n'
-      + '<nexus_action>{"type":"add_event","payload":{"title":"...","date":"YYYY-MM-DD","time":"HH:MM","category":"trabalho|pessoal|saúde|outro","recurrence":"none|daily|weekly|monthly"}}</nexus_action>\n\n'
-      + 'DADOS ATUAIS: '+buildCtx()+memCtx;
-  }catch(e){
-    console.warn('NEXUS buildSys fallback:',e);
-    return buildSysBasic();
-  }
-}
 // ═══════════════════════════════════════════════
 // SLASH COMMANDS
 // ═══════════════════════════════════════════════
@@ -918,7 +905,7 @@ function doSlash(cmd){
   if(cmd==='/financas'){goPanel('finance');return;}
   if(cmd==='/configuracoes'){goPanel('settings');return;}
   if(cmd==='/ajuda'){
-    pushMsg({role:'nexus',tp:'n',text:'**Comandos disponíveis:**\n\n- /resumo — Relatório do dia\n- /metas — Painel de metas\n- /calendario — Calendário mensal\n- /rotina — Rotina do dia\n- /financas — Finanças\n- /configuracoes — Configurações\n- /foco — Modo foco\n- /ajuda — Esta mensagem\n\nDigite / seguido do comando ou converse diretamente comigo.'});
+    pushMsg({role:'nexus',tp:'n',text:'**Comandos disponíveis:**\n\n- `/resumo` — Relatório do dia\n- `/metas` — Painel de metas\n- `/calendario` — Calendário mensal\n- `/rotina` — Rotina do dia\n- `/financas` — Finanças\n- `/configuracoes` — Configurações\n- `/foco` — Modo foco\n- `/ajuda` — Esta mensagem\n\nTambém aceito linguagem natural — ex: `"Adicionar tarefa X"` ou `"Agendar reunião dia 20 às 15h"`.'});
     return;
   }
   if(cmd==='/resumo'){
@@ -928,7 +915,7 @@ function doSlash(cmd){
       text:`**Relatório — ${new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'})}**`,
       card:{title:'STATUS ATUAL',
         stats:[{val:`${tdone()}/${S.tasks.length}`,lbl:'Tarefas',cls:'hi'},{val:`${hdone()}/${S.habits.length}`,lbl:'Hábitos',cls:'ok'},{val:fmt(bal()),lbl:'Saldo',cls:overLim()?'wn':'hi'},{val:`${todEvts().length}`,lbl:'Hoje',cls:'hi'}],
-        rows:[{label:'Tarefas',pct:tp,cls:tp>60?'g':''},{label:'Hábitos',pct:hp,cls:hp>60?'g':''},...S.goals.map(g=>({label:escHtml(g.title.slice(0,32))+'…',pct:pct(g),cls:pct(g)<40?'w':''})),{label:'Meta economia',pct:Math.min(100,Math.round(Math.max(0,bal())/SAVINGS_GOAL*100)),cls:'g'}]}});
+        rows:[{label:'Tarefas',pct:tp,cls:tp>60?'g':''},{label:'Hábitos',pct:hp,cls:hp>60?'g':''},...S.goals.map(g=>({label:g.title.slice(0,32)+'…',pct:pct(g),cls:pct(g)<40?'w':''})),{label:'Meta economia',pct:Math.min(100,Math.round(Math.max(0,bal())/SAVINGS_GOAL*100)),cls:'g'}]}});
   }
 }
 
@@ -945,78 +932,58 @@ async function sendMsg(){
   if(slash){doSlash(slash.cmd);return;}
   pushMsg({role:'user',tp:'n',text:msg});
   S.busy=true; document.getElementById('send-btn').disabled=true; renderMsgs();
-  // Build valid message history for Anthropic API
-  // Rules: must start with 'user', must alternate user/assistant, no empty content
+  // Build valid Anthropic message history (must start with user, must alternate)
   const rawHist = S.msgs.slice(-20)
     .filter(m => m.text && m.text.trim())
     .map(m => ({
-      role: m.role === 'nexus' ? 'assistant' : 'user',
-      content: (m.text + (m.log && m.log.length ? '\n[Ações: ' + m.log.join('; ') + ']' : '')).trim()
+      role: m.role==='nexus' ? 'assistant' : 'user',
+      content: (m.text + (m.log&&m.log.length ? '\n[Ações: '+m.log.join('; ')+']' : '')).trim()
     }));
-  // Drop leading assistant messages (API requires first message = user)
-  while(rawHist.length && rawHist[0].role === 'assistant') rawHist.shift();
-  // Remove consecutive same-role messages (keep last of each group)
-  const hist = rawHist.reduce((acc, m) => {
-    if(acc.length && acc[acc.length-1].role === m.role) acc[acc.length-1] = m;
+  while(rawHist.length && rawHist[0].role==='assistant') rawHist.shift();
+  const hist = rawHist.reduce((acc,m)=>{
+    if(acc.length && acc[acc.length-1].role===m.role) acc[acc.length-1]=m;
     else acc.push(m);
     return acc;
-  }, []);
+  },[]);
   try{
-    // Build system prompt — memory errors must never block the API call
-    let sysPrompt;
-    try{ sysPrompt = await buildSys(); }
-    catch(memErr){ console.warn('NEXUS mem ctx error (non-fatal):',memErr); sysPrompt = buildSysBasic(); }
-
-    if(!S.apiKey){
-      pushMsg({role:'nexus',tp:'n',text:'**Chave de API não configurada.** Vá em ⚙ Configurações → chave da API e insira sua chave Anthropic para ativar a IA.'});
+    const apiKey = NEXUS_API_KEY !== 'SUA_CHAVE_AQUI' ? NEXUS_API_KEY : '';
+    if(!apiKey){
+      pushMsg({role:'nexus',tp:'clr',text:'**Chave de API não configurada.** Edite o `index.html` e substitua `SUA_CHAVE_AQUI` pela sua chave Anthropic.'});
       S.busy=false; document.getElementById('send-btn').disabled=false; renderMsgs(); return;
     }
+    let sysPrompt; try{ sysPrompt=buildSys(); }catch(e){ sysPrompt=buildSysBasic(); }
     const res=await fetch('https://api.anthropic.com/v1/messages',{
       method:'POST',
       headers:{
         'Content-Type':'application/json',
-        'x-api-key': S.apiKey,
+        'x-api-key': apiKey,
         'anthropic-version': '2023-06-01',
         'anthropic-dangerous-direct-browser-access': 'true'
       },
       body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:sysPrompt,messages:[...hist,{role:'user',content:msg}]})
     });
-
     if(!res.ok){
-      const errData = await res.json().catch(()=>({}));
-      throw new Error(`API ${res.status}: ${errData?.error?.message||res.statusText}`);
+      const errData=await res.json().catch(()=>({}));
+      throw new Error('API '+res.status+': '+(errData?.error?.message||res.statusText));
     }
-
     const data=await res.json();
     const raw=data.content?.[0]?.text||'Falha na resposta. Tente novamente.';
     const{clean,acts}=parseActs(raw);
     const log=[];
     acts.forEach(a=>execAct(a,log));
-    autoSave();
     const tp=log.length>0?'act':/você quis dizer|poderia esclarecer/i.test(clean)?'clr':'n';
     pushMsg({role:'nexus',tp,text:clean,log:log.length?log:undefined});
-    // Save to memory async — never block UI
-    memSave(msg, clean).catch(e=>console.warn('NEXUS memSave:',e));
   }catch(err){
-    console.warn('NEXUS send error:', err?.message||err);
-    const isOffline   = !(await checkOnline().catch(()=>false));
-    const isCORS      = err instanceof TypeError && err.message.includes('Failed to fetch');
-    const isAPIKey    = err?.message?.includes('401') || err?.message?.includes('authentication');
-    const isRateLimit = err?.message?.includes('429') || err?.message?.includes('rate');
-    let errMsg;
-    if(isOffline){
-      errMsg = '**Sem conexão** — você está offline. Reconecte-se à internet para conversar com a IA.\n\nSuas tarefas, hábitos e dados continuam disponíveis offline.';
-    } else if(isAPIKey){
-      errMsg = 'Erro de autenticação com a API. Verifique se a chave está configurada corretamente.';
-    } else if(isRateLimit){
-      errMsg = 'Limite de requisições atingido. Aguarde alguns segundos e tente novamente.';
-    } else if(isCORS){
-      errMsg = 'Não foi possível contactar a IA (erro de rede). Verifique sua conexão e tente novamente.';
-    } else {
-      errMsg = `Erro ao contactar a IA: ${err?.message||'desconhecido'}. Tente novamente.`;
-    }
-    console.error('NEXUS erro completo:', err);
-    pushMsg({role:'nexus',tp:'n',text:errMsg});
+    console.error('NEXUS erro:', err);
+    const isOffline = !navigator.onLine;
+    const is401 = err?.message?.includes('401') || err?.message?.includes('authentication');
+    const is429 = err?.message?.includes('429');
+    let msg;
+    if(isOffline)       msg='**Sem conexão** — você está offline.';
+    else if(is401)      msg='**Chave inválida ou expirada.** Edite o `index.html` e substitua `NEXUS_API_KEY` por uma chave válida.';
+    else if(is429)      msg='**Limite de requisições** atingido. Aguarde alguns segundos.';
+    else                msg='Erro ao contactar a IA: '+(err?.message||'desconhecido');
+    pushMsg({role:'nexus',tp:'n',text:msg});
   }
   finally{S.busy=false;document.getElementById('send-btn').disabled=false;renderMsgs();}
 }
@@ -1059,12 +1026,12 @@ function renderGoals(el){
         const pr=pct(g),ex=S.expandedGoal===g.id;
         return `<div class="gc">
           <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:4px">
-            <div style="flex:1;overflow:hidden"><div class="gn2">${escHtml(g.title)}</div><div class="gm">${escHtml(g.category)} · ${g.deadline}</div></div>
+            <div style="flex:1;overflow:hidden"><div class="gn2">${g.title}</div><div class="gm">${g.category} · ${g.deadline}</div></div>
             <span class="gp">${pr}%</span>
           </div>
           <div class="pbar" style="margin-bottom:10px"><div class="pfill ${pr<40?'w':pr>70?'g':''}" style="width:${pr}%"></div></div>
-          ${ex?`<div class="slbl">Sub-tarefas</div>${g.sub.map(s=>`<div class="st3" onclick="toggleSub(${g.id},${s.id})"><div class="chk ${s.d?'on':''}">${s.d?'✓':''}</div><span class="stx ${s.d?'dn':''}">${escHtml(s.t)}</span></div>`).join('')}
-            ${g.ci.length?`<div class="slbl" style="margin-top:12px">Check-ins</div>${g.ci.map(c=>`<div style="font-size:13px;color:var(--tx2);padding:8px 12px;background:rgba(0,229,255,.05);border-radius:8px;margin-bottom:6px;border-left:2px solid var(--cy)"><span style="font-family:var(--FM);color:var(--cy);font-size:11px;margin-right:8px">${c.date}</span>${escHtml(c.note)}</div>`).join('')}`:''}
+          ${ex?`<div class="slbl">Sub-tarefas</div>${g.sub.map(s=>`<div class="st3" onclick="toggleSub(${g.id},${s.id})"><div class="chk ${s.d?'on':''}">${s.d?'✓':''}</div><span class="stx ${s.d?'dn':''}">${s.t}</span></div>`).join('')}
+            ${g.ci.length?`<div class="slbl" style="margin-top:12px">Check-ins</div>${g.ci.map(c=>`<div style="font-size:13px;color:var(--tx2);padding:8px 12px;background:rgba(0,229,255,.05);border-radius:8px;margin-bottom:6px;border-left:2px solid var(--cy)"><span style="font-family:var(--FM);color:var(--cy);font-size:11px;margin-right:8px">${c.date}</span>${c.note}</div>`).join('')}`:''}
           `:''}
           <button class="exp-btn" onclick="toggleGoalExp(${g.id})">${ex?'▲ recolher':'▼ ver detalhes'}</button>
         </div>`;
@@ -1108,7 +1075,7 @@ function renderCalendar(el){
     const evs=getEvDay(sd.y,sd.m,sd.d);
     const lbl=new Date(sd.y,sd.m,sd.d).toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'});
     return `<div class="day-det"><div class="day-det-hd"><span class="day-det-t">${lbl}</span><button class="btn sm ghost" onclick="openModal('event','${ds(sd.y,sd.m,sd.d)}')">+ Evento</button></div>
-    ${evs.length?evs.map(e=>`<div class="ev-item"><div class="ev-bar" style="background:${CAT_COL[e.category]||'var(--tx3)'}"></div><div class="ev-info"><div class="ev-tt">${escHtml(e.title)}</div><div class="ev-mt">${e.time}${e.recurrence!=='none'?`<span class="rec-b">↺ ${REC_LBL[e.recurrence]}</span>`:''}</div></div><span class="ev-bg" style="${CAT_TX[e.category]||''};background:${CAT_BG2[e.category]||'transparent'};border-color:transparent">${e.category}</span></div>`).join(''):'<div class="empty" style="padding:14px 0"><div class="ei">🗓</div><p>Nenhum evento</p></div>'}
+    ${evs.length?evs.map(e=>`<div class="ev-item"><div class="ev-bar" style="background:${CAT_COL[e.category]||'var(--tx3)'}"></div><div class="ev-info"><div class="ev-tt">${e.title}</div><div class="ev-mt">${e.time}${e.recurrence!=='none'?`<span class="rec-b">↺ ${REC_LBL[e.recurrence]}</span>`:''}</div></div><span class="ev-bg" style="${CAT_TX[e.category]||''};background:${CAT_BG2[e.category]||'transparent'};border-color:transparent">${e.category}</span></div>`).join(''):'<div class="empty" style="padding:14px 0"><div class="ei">🗓</div><p>Nenhum evento</p></div>'}
     </div>`;
   })():'';
 
@@ -1133,7 +1100,7 @@ function renderCalendar(el){
       </div>
       ${selHtml}
       <div class="slbl" style="margin-top:16px">Próximos Eventos</div>
-      ${S.events.filter(e=>e.recurrence==='none'&&e.date>=todayStr()).sort((a,b)=>a.date.localeCompare(b.date)||a.time.localeCompare(b.time)).slice(0,4).map(e=>`<div class="ev-item"><div class="ev-bar" style="background:${CAT_COL[e.category]||'var(--tx3)'}"></div><div class="ev-info"><div class="ev-tt">${escHtml(e.title)}</div><div class="ev-mt">${new Date(e.date).toLocaleDateString('pt-BR',{day:'numeric',month:'short'})} · ${e.time}</div></div><span class="ev-bg" style="${CAT_TX[e.category]||''};background:${CAT_BG2[e.category]||'transparent'};border-color:transparent">${e.category}</span></div>`).join('')}
+      ${S.events.filter(e=>e.recurrence==='none'&&e.date>=todayStr()).sort((a,b)=>a.date.localeCompare(b.date)||a.time.localeCompare(b.time)).slice(0,4).map(e=>`<div class="ev-item"><div class="ev-bar" style="background:${CAT_COL[e.category]||'var(--tx3)'}"></div><div class="ev-info"><div class="ev-tt">${e.title}</div><div class="ev-mt">${new Date(e.date).toLocaleDateString('pt-BR',{day:'numeric',month:'short'})} · ${e.time}</div></div><span class="ev-bg" style="${CAT_TX[e.category]||''};background:${CAT_BG2[e.category]||'transparent'};border-color:transparent">${e.category}</span></div>`).join('')}
     </div>
   </div>`;
 }
@@ -1188,9 +1155,9 @@ function renderRoutine(el){
     </div>
   </div>`;
 }
-function togHabit(id){S.habits=S.habits.map(h=>h.id===id?{...h,done:!h.done,streak:h.done?h.streak-1:h.streak+1}:h);renderHUD();refreshPanel();autoSave();}
-function togTask(id){S.tasks=S.tasks.map(t=>t.id===id?{...t,done:!t.done}:t);renderHUD();refreshPanel();autoSave();}
-function addQT(){const el=document.getElementById('qt-inp');if(!el||!el.value.trim())return;S.tasks.push({id:Date.now(),title:el.value.trim(),done:false,priority:'média',date:todayStr()});toast('Tarefa adicionada ✔');el.value='';renderHUD();refreshPanel();autoSave();}
+function togHabit(id){S.habits=S.habits.map(h=>h.id===id?{...h,done:!h.done,streak:h.done?h.streak-1:h.streak+1}:h);renderHUD();refreshPanel();}
+function togTask(id){S.tasks=S.tasks.map(t=>t.id===id?{...t,done:!t.done}:t);renderHUD();refreshPanel();}
+function addQT(){const el=document.getElementById('qt-inp');if(!el||!el.value.trim())return;S.tasks.push({id:Date.now(),title:el.value.trim(),done:false,priority:'média',date:todayStr()});toast('Tarefa adicionada ✔');el.value='';renderHUD();refreshPanel();}
 function jumpEvt(date){const dt=new Date(date);S.calMonth=dt.getMonth();S.calYear=dt.getFullYear();S.selDay={y:dt.getFullYear(),m:dt.getMonth(),d:parseInt(date.split('-')[2])};goPanel('calendar');}
 
 // ═══════════════════════════════════════════════
@@ -1216,7 +1183,7 @@ function renderFinance(el){
         <div style="font-size:11px;color:var(--tx3);margin-top:6px;font-family:var(--FM)">${fmt(Math.max(0,b))} / ${fmt(SAVINGS_GOAL)}</div>
       </div>
       <div class="slbl">Transações</div>
-      <div class="card">${[...S.txns].reverse().slice(0,7).map(t=>`<div class="txrow"><div class="txic" style="background:${CATBG[t.cat]||CATBG['Outro']}">${CATICONS[t.cat]||'📦'}</div><div class="txin"><div class="txn">${escHtml(t.desc)}</div><div class="txd">${t.date} · ${t.cat}</div></div><div class="txv ${t.type}" style="${pm?'filter:blur(5px)':''}">${t.type==='income'?'+':'-'}${fmt(t.amount)}</div></div>`).join('')}</div>
+      <div class="card">${[...S.txns].reverse().slice(0,7).map(t=>`<div class="txrow"><div class="txic" style="background:${CATBG[t.cat]||CATBG['Outro']}">${CATICONS[t.cat]||'📦'}</div><div class="txin"><div class="txn">${t.desc}</div><div class="txd">${t.date} · ${t.cat}</div></div><div class="txv ${t.type}" style="${pm?'filter:blur(5px)':''}">${t.type==='income'?'+':'-'}${fmt(t.amount)}</div></div>`).join('')}</div>
     </div>
   </div>`;
 }
@@ -1230,16 +1197,16 @@ function renderSettings(el){
     <div class="pbody">
       <div class="pf-hero">
         <div class="pf-av" onclick="openModal('editProfile')">${getInits(S.profile.name)}</div>
-        <div class="pf-nm">${escHtml(S.profile.name)}</div>
-        ${S.profile.profession?`<div class="pf-ro">${escHtml(S.profile.profession)}</div>`:''}
+        <div class="pf-nm">${S.profile.name}</div>
+        ${S.profile.profession?`<div class="pf-ro">${S.profile.profession}</div>`:''}
         <button class="btn sm" onclick="openModal('editProfile')">Editar Perfil</button>
       </div>
       ${(S.profile.lifeGoalShort||S.profile.lifeGoalMid||S.profile.lifeGoalLong)?`
       <div class="card">
         <div class="slbl">Metas de Vida</div>
-        ${S.profile.lifeGoalShort?`<div style="margin-bottom:8px"><div style="font-size:10px;font-family:var(--FM);color:var(--tx3);letter-spacing:1px;text-transform:uppercase;margin-bottom:3px">Curto prazo</div><div style="font-size:13.5px">${escHtml(S.profile.lifeGoalShort)}</div></div>`:''}
-        ${S.profile.lifeGoalMid?`<div style="margin-bottom:8px"><div style="font-size:10px;font-family:var(--FM);color:var(--tx3);letter-spacing:1px;text-transform:uppercase;margin-bottom:3px">Médio prazo</div><div style="font-size:13.5px">${escHtml(S.profile.lifeGoalMid)}</div></div>`:''}
-        ${S.profile.lifeGoalLong?`<div><div style="font-size:10px;font-family:var(--FM);color:var(--tx3);letter-spacing:1px;text-transform:uppercase;margin-bottom:3px">Longo prazo</div><div style="font-size:13.5px">${escHtml(S.profile.lifeGoalLong)}</div></div>`:''}
+        ${S.profile.lifeGoalShort?`<div style="margin-bottom:8px"><div style="font-size:10px;font-family:var(--FM);color:var(--tx3);letter-spacing:1px;text-transform:uppercase;margin-bottom:3px">Curto prazo</div><div style="font-size:13.5px">${S.profile.lifeGoalShort}</div></div>`:''}
+        ${S.profile.lifeGoalMid?`<div style="margin-bottom:8px"><div style="font-size:10px;font-family:var(--FM);color:var(--tx3);letter-spacing:1px;text-transform:uppercase;margin-bottom:3px">Médio prazo</div><div style="font-size:13.5px">${S.profile.lifeGoalMid}</div></div>`:''}
+        ${S.profile.lifeGoalLong?`<div><div style="font-size:10px;font-family:var(--FM);color:var(--tx3);letter-spacing:1px;text-transform:uppercase;margin-bottom:3px">Longo prazo</div><div style="font-size:13.5px">${S.profile.lifeGoalLong}</div></div>`:''}
       </div>`:''}
       <div class="slbl">Estilo de Comunicação</div>
       <div class="card">
@@ -1253,7 +1220,7 @@ function renderSettings(el){
         <div class="srow" style="padding-bottom:8px"><div class="sr-ic" style="background:rgba(124,131,255,.08)">🌙</div><div class="sr-inf"><div class="sr-t">Silêncio noturno</div><div class="sr-s">${S.notif.silentStart} – ${S.notif.silentEnd}</div></div><button class="btn sm ghost" onclick="openModal('silent')">Editar</button></div>
       </div>
       <div class="slbl">Integrações</div>
-      ${S.integs.map(i=>`<div class="intg"><div class="intg-ic">${i.icon}</div><div class="intg-inf"><div class="intg-nm">${escHtml(i.name)}</div><div class="intg-ds">${escHtml(i.desc)}</div></div><div class="intg-st ${i.connected?'conn':'disc'}" onclick="togInteg('${i.id}')">${i.connected?'Conectado':'Conectar'}</div></div>`).join('')}
+      ${S.integs.map(i=>`<div class="intg"><div class="intg-ic">${i.icon}</div><div class="intg-inf"><div class="intg-nm">${i.name}</div><div class="intg-ds">${i.desc}</div></div><div class="intg-st ${i.connected?'conn':'disc'}" onclick="togInteg('${i.id}')">${i.connected?'Conectado':'Conectar'}</div></div>`).join('')}
       <div class="slbl">Relatórios</div>
       <div class="card">
         <div class="srow" style="padding-top:8px;padding-bottom:8px"><div class="sr-ic" style="background:rgba(0,229,255,.08)">⚡</div><div class="sr-inf"><div class="sr-t">Gerar relatório agora</div><div class="sr-s">Abre no Chat com métricas</div></div><button class="btn sm" onclick="genReport()">Gerar</button></div>
@@ -1261,20 +1228,8 @@ function renderSettings(el){
       <div class="slbl">Privacidade e Segurança</div>
       <div class="card">
         <div class="srow" style="padding-top:8px"><div class="sr-ic" style="background:rgba(255,82,82,.08)">🔒</div><div class="sr-inf"><div class="sr-t">Modo privado</div><div class="sr-s">Oculta dados financeiros</div></div><div class="tgl ${S.privacy.privateMode?'on':''}" onclick="togglePM()"><div class="tgl-th"></div></div></div>
-        <div class="srow"><div class="sr-ic" style="background:rgba(0,229,255,.08)">⏱</div><div class="sr-inf"><div class="sr-t">Expiração da sessão</div><div class="sr-s">${SESSION_OPTIONS.find(o=>o.value===getCurrentExpiry())?.label||'Nunca'}</div></div><div style="display:flex;flex-wrap:wrap;gap:4px;margin-left:8px">${SESSION_OPTIONS.map(o=>`<span class="session-pill ${getCurrentExpiry()===o.value?'on':''}" onclick="setSessionExpiry(${o.value})">${o.label}</span>`).join('')}</div></div>
         <div class="srow"><div class="sr-ic" style="background:rgba(124,131,255,.08)">🔐</div><div class="sr-inf"><div class="sr-t">PIN de acesso</div><div class="sr-s">${S.privacy.pinEnabled?'Ativo':'Desativado — ative se quiser'}</div></div><div class="tgl ${S.privacy.pinEnabled?'on':''}" onclick="togPIN()"><div class="tgl-th"></div></div></div>
         <div class="srow" style="padding-bottom:8px"><div class="sr-ic" style="background:rgba(0,229,255,.08)">📤</div><div class="sr-inf"><div class="sr-t">Exportar dados</div><div class="sr-s">Backup completo em JSON</div></div><button class="btn sm" onclick="exportData()">Exportar</button></div>
-      </div>
-      <div class="slbl">Chave de API</div>
-      <div class="card">
-        <div class="srow" style="padding-top:8px;padding-bottom:8px">
-          <div class="sr-ic" style="background:rgba(0,229,255,.08)">🔑</div>
-          <div class="sr-inf">
-            <div class="sr-t">Anthropic API Key</div>
-            <div class="sr-s">${S.apiKey ? '••••••••••••'+S.apiKey.slice(-4) : 'Não configurada'}</div>
-          </div>
-          <button class="btn sm" onclick="openModal('apiKey')">Configurar</button>
-        </div>
       </div>
       <div class="dz"><div class="dz-t">⚠ ZONA DE PERIGO</div><button class="btn danger full" onclick="openModal('reset')">Resetar todos os dados</button></div>
     </div>
@@ -1293,241 +1248,14 @@ function genReport(){
   goPanel('chat');
   pushMsg({role:'nexus',tp:'n',text:`**Relatório — ${mn}**\n\nGerado para **${S.profile.name}**.`,
     card:{title:'RELATÓRIO MENSAL',stats:[{val:`${tdone()}/${S.tasks.length}`,lbl:'Tarefas',cls:'hi'},{val:`${hdone()}/${S.habits.length}`,lbl:'Hábitos',cls:'ok'},{val:fmt(bal()),lbl:'Saldo',cls:overLim()?'wn':'hi'},{val:`${S.goals.length}`,lbl:'Metas',cls:'hi'}],
-      rows:[{label:'Tarefas',pct:tp,cls:tp>60?'g':''},{label:'Hábitos',pct:hp,cls:hp>60?'g':''},{label:'Meta economia',pct:Math.min(100,Math.round(Math.max(0,bal())/SAVINGS_GOAL*100)),cls:'g'},...S.goals.map(g=>({label:escHtml(g.title.slice(0,32))+'…',pct:pct(g),cls:pct(g)<40?'w':''}))]}});
+      rows:[{label:'Tarefas',pct:tp,cls:tp>60?'g':''},{label:'Hábitos',pct:hp,cls:hp>60?'g':''},{label:'Meta economia',pct:Math.min(100,Math.round(Math.max(0,bal())/SAVINGS_GOAL*100)),cls:'g'},...S.goals.map(g=>({label:g.title.slice(0,32)+'…',pct:pct(g),cls:pct(g)<40?'w':''}))]}});
   toast('Relatório gerado no Chat!');
 }
-// ═══════════════════════════════════════════════
-// NEXUS MEMORY ENGINE v12
-// ═══════════════════════════════════════════════
-const MEM_DB_NAME    = 'nexus_memory';
-const MEM_DB_VER     = 1;
-const MEM_STORE      = 'interactions';
-const MEM_PREF_KEY   = 'nexus_mem_prefs';
-const MEM_RETENTION  = 180; // days
-const MEM_MAX        = 500; // max interactions
-const MEM_COMPRESS_AT= 50;  // compress oldest N when limit hit
-const TAG_KEYWORDS   = {
-  tarefas:  ['tarefa','fazer','pendente','completar','lista','deadline','prazo'],
-  habitos:  ['hábito','meditar','água','exercício','rotina','streak','dormir'],
-  financas: ['dinheiro','gasto','salário','pagar','saldo','economia','investir','conta'],
-  metas:    ['meta','objetivo','plano','alcançar','progresso','prazo','sonho'],
-};
-
-let _memDB = null;
-
-// ── Open IndexedDB ────────────────────────────
-async function memOpen(){
-  if(_memDB) return _memDB;
-  return new Promise((resolve,reject)=>{
-    const req = indexedDB.open(MEM_DB_NAME, MEM_DB_VER);
-    req.onupgradeneeded = e=>{
-      const db = e.target.result;
-      if(!db.objectStoreNames.contains(MEM_STORE)){
-        const store = db.createObjectStore(MEM_STORE,{keyPath:'id',autoIncrement:true});
-        store.createIndex('timestamp','timestamp',{unique:false});
-        store.createIndex('userId','userId',{unique:false});
-      }
-    };
-    req.onsuccess = e=>{ _memDB=e.target.result; resolve(_memDB); };
-    req.onerror   = e=>reject(e.target.error);
-  });
-}
-
-// ── Auto-tag a message ────────────────────────
-function autoTag(text){
-  const t = text.toLowerCase();
-  const tags = ['geral'];
-  for(const [tag,kws] of Object.entries(TAG_KEYWORDS)){
-    if(kws.some(k=>t.includes(k))) tags.push(tag);
-  }
-  return [...new Set(tags)];
-}
-
-// ── Save interaction ──────────────────────────
-async function memSave(userMsg, nexusResp){
-  try{
-    const db = await memOpen();
-    const tags = autoTag(userMsg+' '+nexusResp);
-    const record = {
-      userId:    'local',
-      timestamp: Date.now(),
-      user_message:  userMsg,
-      nexus_response: nexusResp.slice(0,800), // cap response size
-      tags,
-    };
-    await new Promise((res,rej)=>{
-      const tx = db.transaction(MEM_STORE,'readwrite');
-      tx.objectStore(MEM_STORE).add(record);
-      tx.oncomplete=res; tx.onerror=rej;
-    });
-    // Extract preferences asynchronously
-    memExtractPrefs(userMsg, nexusResp);
-    // Enforce limits
-    await memEnforceLimits();
-  }catch(e){ console.warn('NEXUS mem save:',e); }
-}
-
-// ── Load recent interactions for context ─────
-async function memLoad(limit=60){
-  // load all interactions
-  try{
-    const db = await memOpen();
-    const cutoff = Date.now() - MEM_RETENTION*24*60*60*1000;
-    return new Promise((res,rej)=>{
-      const tx = db.transaction(MEM_STORE,'readonly');
-      const idx = tx.objectStore(MEM_STORE).index('userId');
-      const results=[];
-      idx.openCursor(IDBKeyRange.only('local'),'prev').onsuccess = e=>{
-        const cursor = e.target.result;
-        if(cursor && results.length<limit){
-          const r=cursor.value;
-          if(r.timestamp>=cutoff) results.push(r);
-          cursor.continue();
-        } else res(results.reverse());
-      };
-      tx.onerror=rej;
-    });
-  }catch(e){ console.warn('NEXUS mem load:',e); return []; }
-}
-
-// ── Build memory context string for system prompt
-async function memBuildContext(){
-  try{
-  const [interactions, prefs] = await Promise.all([memLoad(60), Promise.resolve(memLoadPrefs())]);
-  if(!interactions.length && !prefs) return '';
-
-  let ctx = '\n\n━━━ MEMÓRIA DE CONVERSAS ANTERIORES ━━━\n';
-
-  // Summarized older interactions (>10)
-  if(interactions.length > 10){
-    const older = interactions.slice(0, interactions.length-10);
-    const summary = older.map(i=>`[${new Date(i.timestamp).toLocaleDateString('pt-BR')} | ${i.tags.join('/')}] U: ${i.user_message.slice(0,80)} → N: ${i.nexus_response.slice(0,80)}`).join('\n');
-    ctx += `\nResumo de ${older.length} interações anteriores:\n${summary}\n`;
-  }
-
-  // Recent interactions (last 10, full)
-  const recent = interactions.slice(-10);
-  if(recent.length){
-    ctx += `\nÚltimas ${recent.length} interações:\n`;
-    recent.forEach(i=>{
-      ctx += `[${new Date(i.timestamp).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}] ${i.tags.map(t=>t.toUpperCase()).join('/')}\n`;
-      ctx += `Usuário: ${i.user_message.slice(0,150)}\n`;
-      ctx += `NEXUS: ${i.nexus_response.slice(0,150)}\n\n`;
-    });
-  }
-
-  // Extracted preferences
-  if(prefs){
-    if(prefs.topics?.length)    ctx += `\nTópicos recorrentes: ${prefs.topics.join(', ')}`;
-    if(prefs.people?.length)    ctx += `\nPessoas mencionadas: ${prefs.people.join(', ')}`;
-    if(prefs.decisions?.length) ctx += `\nDecisões registradas: ${prefs.decisions.slice(-5).join(' | ')}`;
-    ctx += '\n';
-  }
-
-  ctx += '━━━ FIM DA MEMÓRIA ━━━\n';
-  ctx += 'Use o contexto acima para dar continuidade, lembrar preferências e evitar repetições.';
-  return ctx;
-  }catch(e){ console.warn('NEXUS memBuildContext error:',e); return ''; }
-}
-
-// ── Extract preferences from conversation ────
-function memExtractPrefs(userMsg, nexusResp){
-  const prefs = memLoadPrefs();
-  const text  = (userMsg+' '+nexusResp).toLowerCase();
-
-  // Detect recurring topics
-  const topicKws = {academia:['academia','treino','musculação'],financas:['dinheiro','poupança','gasto','investimento'],trabalho:['trabalho','reunião','projeto','chefe','cliente'],saude:['saúde','médico','remédio','dormir'],estudos:['estudar','prova','faculdade','curso']};
-  for(const [topic,kws] of Object.entries(topicKws)){
-    if(kws.some(k=>text.includes(k)) && !prefs.topics.includes(topic)){
-      prefs.topics.push(topic);
-      if(prefs.topics.length>10) prefs.topics.shift();
-    }
-  }
-
-  // Detect people names (simple heuristic: "com [Name]", "para [Name]")
-  const nameMatches = userMsg.match(/(?:com|para|do|da|de)\s+([A-ZÀ-Ú][a-zà-ú]{2,})/g)||[];
-  nameMatches.forEach(m=>{
-    const name = m.split(' ').pop();
-    if(name && !prefs.people.includes(name)){ prefs.people.push(name); if(prefs.people.length>20) prefs.people.shift(); }
-  });
-
-  // Detect decisions ("decidi","vou parar","escolhi","resolvi")
-  const decisionKws = ['decidi','resolvi','escolhi','vou parar','vou começar','quero mudar','preciso'];
-  if(decisionKws.some(k=>userMsg.toLowerCase().includes(k))){
-    const snippet = userMsg.slice(0,100);
-    if(!prefs.decisions.includes(snippet)){ prefs.decisions.push(snippet); if(prefs.decisions.length>30) prefs.decisions.shift(); }
-  }
-
-  memSavePrefs(prefs);
-}
-
-// ── Prefs via LocalStorage ────────────────────
-function memLoadPrefs(){
-  try{ return JSON.parse(localStorage.getItem(MEM_PREF_KEY+'local')||'{"topics":[],"people":[],"decisions":[]}'); }
-  catch{ return {topics:[],people:[],decisions:[]}; }
-}
-function memSavePrefs(p){
-  try{ localStorage.setItem(MEM_PREF_KEY+'local', JSON.stringify(p)); }catch{}
-}
-
-// ── Enforce limits + compress ─────────────────
-async function memEnforceLimits(){
-  try{
-    const db = await memOpen();
-    const all = await new Promise(res=>{
-      const tx = db.transaction(MEM_STORE,'readonly');
-      const req = tx.objectStore(MEM_STORE).index('userId').getAll(IDBKeyRange.only('local'));
-      req.onsuccess=e=>res(e.target.result);
-    });
-    // Remove expired
-    const cutoff = Date.now()-MEM_RETENTION*24*60*60*1000;
-    const expired = all.filter(r=>r.timestamp<cutoff);
-    // Remove if over max
-    const overLimit = all.length>MEM_MAX ? all.slice(0,all.length-MEM_MAX) : [];
-    const toDelete = [...new Set([...expired.map(r=>r.id),...overLimit.map(r=>r.id)])];
-    if(toDelete.length){
-      const tx = db.transaction(MEM_STORE,'readwrite');
-      const store = tx.objectStore(MEM_STORE);
-      toDelete.forEach(id=>store.delete(id));
-      await new Promise((res,rej)=>{ tx.oncomplete=res; tx.onerror=rej; });
-    }
-    // Compress oldest MEM_COMPRESS_AT if over 80% of max
-    if(all.length > MEM_MAX*0.8 && all.length>=MEM_COMPRESS_AT){
-      memCompressOldest(all.slice(0,MEM_COMPRESS_AT));
-    }
-  }catch(e){ console.warn('NEXUS mem enforce:',e); }
-}
-
-// ── Compress oldest interactions into summary ─
-async function memCompressOldest(interactions){
-  if(!interactions.length) return;
-  // Build summary text
-  const summary = '[RESUMO COMPRIMIDO] '+interactions.map(i=>`${new Date(i.timestamp).toLocaleDateString('pt-BR')}: ${i.user_message.slice(0,40)}→${i.nexus_response.slice(0,40)}`).join(' | ');
-  // Delete originals and save summary as single record
-  try{
-    const db = await memOpen();
-    const tx = db.transaction(MEM_STORE,'readwrite');
-    const store = tx.objectStore(MEM_STORE);
-    interactions.forEach(i=>store.delete(i.id));
-    store.add({
-      userId: 'local',
-      timestamp: interactions[0].timestamp,
-      user_message: summary,
-      nexus_response: '[comprimido]',
-      tags: ['geral','resumo'],
-    });
-    await new Promise((res,rej)=>{ tx.oncomplete=res; tx.onerror=rej; });
-  }catch(e){ console.warn('NEXUS compress:',e); }
-}
-
-// ── Manual export (simple backup) ────────────
 function exportData(){
-  const prefs = memLoadPrefs();
-  const d={profile:S.profile,tasks:S.tasks,habits:S.habits,events:S.events,goals:S.goals,txns:S.txns,dailyNote:S.dailyNote,prefs,exportedAt:new Date().toISOString()};
+  const d={profile:S.profile,tasks:S.tasks,habits:S.habits,events:S.events,goals:S.goals,transactions:S.txns,exportedAt:new Date().toISOString()};
   const blob=new Blob([JSON.stringify(d,null,2)],{type:'application/json'});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');a.href=url;a.download=`nexus-backup-${todayStr()}.json`;a.click();
-  URL.revokeObjectURL(url);toast('Backup exportado!');
+  const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`nexus-${todayStr()}.json`;a.click();URL.revokeObjectURL(url);
+  toast('Dados exportados!');
 }
 
 // ═══════════════════════════════════════════════
@@ -1579,22 +1307,6 @@ function openModal(type,extra){
     <p style="font-size:13px;color:var(--tx2);margin-bottom:14px;line-height:1.6">Digite 4 dígitos. O PIN será pedido ao abrir o app.</p>
     <div class="fg"><label class="fl2">Novo PIN</label><input class="inp" id="pin-new" type="password" maxlength="4" placeholder="····" oninput="this.value=this.value.replace(/\\D/g,'').slice(0,4)"></div>
     <button class="btn full" onclick="savePin()">Ativar PIN</button>`;
-  } else if(type==='apiKey'){
-    body.innerHTML=`<div class="mt2">🔑 Chave de API <button class="mc2" onclick="closeModal()">✕</button></div>
-    <p style="font-size:13px;color:var(--tx2);margin-bottom:14px;line-height:1.6">Insira sua chave da Anthropic para ativar a IA.<br>Obtenha em <a href="https://console.anthropic.com" target="_blank" style="color:var(--cy)">console.anthropic.com</a></p>
-    <div class="fg"><label class="fl2">API Key</label>
-      <div class="pass-wrap">
-        <input class="inp" id="apikey-inp" type="password" placeholder="sk-ant-..." value="${S.apiKey}"
-          style="padding-right:44px">
-        <button class="pass-toggle" type="button" onclick="togglePass('apikey-inp','eye-api')" title="Ver/ocultar">
-          <span id="eye-api">👁</span>
-        </button>
-      </div>
-    </div>
-    <div style="display:flex;gap:8px;margin-top:4px">
-      <button class="btn full" onclick="saveApiKey()">Salvar</button>
-      ${S.apiKey?'<button class="btn ghost" onclick="clearApiKey()">Remover</button>':''}
-    </div>`;
   } else if(type==='reset'){
     body.innerHTML=`<div class="mt2">⚠ Reset Total <button class="mc2" onclick="closeModal()">✕</button></div>
     <div class="cbx">Esta ação é <strong style="color:var(--rd)">irreversível</strong>. Todos os dados serão apagados: tarefas, hábitos, eventos, metas e transações.</div>
@@ -1624,22 +1336,10 @@ function toggleHudCard(k){
 }
 function pickEmoji(el,e){document.querySelectorAll('#emoji-grid span').forEach(s=>s.style.background='transparent');el.style.background='rgba(0,229,255,.15)';document.getElementById('h-e').value=e;}
 function setTT(t){_txnType=t;document.getElementById('te-btn').className='btn full'+(t==='expense'?'':' ghost');document.getElementById('ti-btn').className='btn full'+(t==='income'?'':' ghost');}
-function submitGoal(){const t=document.getElementById('g-t').value.trim();if(!t)return;S.goals.push({id:Date.now(),title:t,deadline:document.getElementById('g-d').value,category:document.getElementById('g-c').value,sub:[],ci:[]});toast('Meta criada ✔');closeModal();refreshPanel();renderHUD();autoSave();}
-function submitEvent(){const t=document.getElementById('e-t').value.trim();if(!t)return;S.events.push({id:Date.now(),title:t,date:document.getElementById('e-d').value,time:document.getElementById('e-h').value,category:document.getElementById('e-c').value,recurrence:document.getElementById('e-r').value});toast('Evento agendado ✔');closeModal();renderHUD();refreshPanel();autoSave();}
-function submitTxn(){const d=document.getElementById('t-d').value.trim(),v=document.getElementById('t-v').value;if(!d||!v)return;S.txns.push({id:Date.now(),desc:d,amount:parseFloat(v),cat:document.getElementById('t-c').value,type:_txnType,date:new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})});toast('Lançamento registrado ✔');closeModal();renderHUD();refreshPanel();autoSave();}
+function submitGoal(){const t=document.getElementById('g-t').value.trim();if(!t)return;S.goals.push({id:Date.now(),title:t,deadline:document.getElementById('g-d').value,category:document.getElementById('g-c').value,sub:[],ci:[]});toast('Meta criada ✔');closeModal();refreshPanel();renderHUD();}
+function submitEvent(){const t=document.getElementById('e-t').value.trim();if(!t)return;S.events.push({id:Date.now(),title:t,date:document.getElementById('e-d').value,time:document.getElementById('e-h').value,category:document.getElementById('e-c').value,recurrence:document.getElementById('e-r').value});toast('Evento agendado ✔');closeModal();renderHUD();refreshPanel();}
+function submitTxn(){const d=document.getElementById('t-d').value.trim(),v=document.getElementById('t-v').value;if(!d||!v)return;S.txns.push({id:Date.now(),desc:d,amount:parseFloat(v),cat:document.getElementById('t-c').value,type:_txnType,date:new Date().toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})});toast('Lançamento registrado ✔');closeModal();renderHUD();refreshPanel();}
 function submitHabit(){const n=document.getElementById('h-n').value.trim();if(!n)return;S.habits.push({id:Date.now(),name:n,emoji:document.getElementById('h-e').value,streak:0,done:false});toast('Hábito criado ✔');closeModal();renderHUD();}
-function saveApiKey(){
-  const val=(document.getElementById('apikey-inp')||{}).value?.trim();
-  if(!val){toast('Insira uma chave válida.');return;}
-  S.apiKey=val;
-  localStorage.setItem('nexus_api_key',val);
-  toast('Chave salva ✔');closeModal();refreshPanel();
-}
-function clearApiKey(){
-  S.apiKey='';
-  localStorage.removeItem('nexus_api_key');
-  toast('Chave removida.');closeModal();refreshPanel();
-}
 function saveProfile(){S.profile={...S.profile,name:document.getElementById('p-n').value||S.profile.name,profession:document.getElementById('p-p').value,lifeGoalShort:document.getElementById('p-gs').value,lifeGoalMid:document.getElementById('p-gm').value,lifeGoalLong:document.getElementById('p-gl').value,language:document.getElementById('p-l').value,timezone:document.getElementById('p-tz').value};toast('Perfil atualizado ✔');closeModal();refreshPanel();}
 function savePin(){const p=document.getElementById('pin-new').value;if(p.length!==4){toast('PIN deve ter 4 dígitos');return;}S.privacy={...S.privacy,pinEnabled:true,pin:p};toast('PIN ativado 🔐');closeModal();refreshPanel();}
 function saveSilent(){S.notif.silentStart=document.getElementById('sil-s').value;S.notif.silentEnd=document.getElementById('sil-e').value;toast('Horário salvo ✔');closeModal();refreshPanel();}
@@ -1699,10 +1399,6 @@ function init(){
       stats:[{val:`${tdone()}/${S.tasks.length}`,lbl:'Tarefas',cls:'hi'},{val:`${hdone()}/${S.habits.length}`,lbl:'Hábitos',cls:'ok'},{val:fmt(bal()),lbl:'Saldo',cls:overLim()?'wn':'hi'},{val:`${S.events.length}`,lbl:'Eventos',cls:'hi'}],
       rows:[{label:'Tarefas',pct:tp,cls:tp>60?'g':''},{label:'Hábitos',pct:hp,cls:hp>60?'g':''},{label:S.goals[0].title.slice(0,32)+'…',pct:pct(S.goals[0])},{label:'Meta economia',pct:Math.min(100,Math.round(Math.max(0,bal())/SAVINGS_GOAL*100)),cls:'g'}]}});
   pushMsg({role:'nexus',tp:'n',text:`Página **⚙ Config** disponível na barra inferior. Digite **/** para ver todos os comandos ou converse comigo diretamente.`});
-  if(!S.apiKey){
-    setTimeout(()=>pushMsg({role:'nexus',tp:'clr',
-      text:'**Chave de API não configurada.** Vá em ⚙ Configurações → **Chave de API** e insira sua chave Anthropic para ativar a IA.'}),600);
-  }
 
   // Chat input auto-resize
   const ni=document.getElementById('chat-inp');
@@ -1711,119 +1407,206 @@ function init(){
 
   // Activate PIN if enabled
   if(S.privacy.pinEnabled) renderPINscreen();
+}
 
-  // ── Robust online detection ─────────────────────────────────────────────
-  // navigator.onLine is unreliable — do a real network probe instead
-  async function checkOnline(){
-    // In preview environments, assume online (SW serves index.html from cache)
-    if(location.protocol === 'file:') return true;
-    try{
-      // Use a timestamp to bypass SW cache
-      const res = await fetch('./index.html?_probe=' + Date.now(), {
-        cache: 'no-store', method: 'HEAD', signal: AbortSignal.timeout(3000)
+// ═══════════════════════════════════════════════
+// LOGIN SYSTEM
+// ═══════════════════════════════════════════════
+const LS_USERS='nexus_users', LS_SESSION='nexus_session';
+let _authTab='login', _remember=false, _currentUser=null;
+function getUsers(){try{return JSON.parse(localStorage.getItem(LS_USERS)||'[]');}catch{return [];}}
+function saveUsers(u){localStorage.setItem(LS_USERS,JSON.stringify(u));}
+function getSession(){try{return JSON.parse(localStorage.getItem(LS_SESSION)||'null');}catch{return null;}}
+function saveSession(u){localStorage.setItem(LS_SESSION,JSON.stringify(u));}
+function clearSession(){localStorage.removeItem(LS_SESSION);}
+function hashPwd(s){let h=0;for(let i=0;i<s.length;i++){h=Math.imul(31,h)+s.charCodeAt(i)|0;}return h.toString(36);}
+function getGreeting(){const h=new Date().getHours();return h<12?'BOM DIA':h<18?'BOA TARDE':'BOA NOITE';}
+function getWelcomeMsg(name,isNew){
+  const h=new Date().getHours();
+  if(isNew) return 'Seu agente pessoal está pronto.';
+  if(h<12) return 'Sua rotina matinal está pronta.';
+  if(h<18) return 'Continue de onde parou.';
+  return 'Sua rotina noturna aguarda.';
+}
+
+function switchTab(tab){
+  _authTab=tab;
+  document.getElementById('tab-in').classList.toggle('on',tab==='login');
+  document.getElementById('tab-up').classList.toggle('on',tab==='register');
+  const err=document.getElementById('login-err');err.classList.remove('show');
+  document.getElementById('remember-row').style.display=tab==='recover'?'none':'flex';
+  document.getElementById('forgot-wrap').style.display=tab==='recover'?'none':'block';
+  const sb=document.getElementById('login-submit-btn');
+  if(tab==='login'){
+    document.getElementById('login-sub').textContent='Acesse seu agente pessoal';
+    sb.textContent='Entrar';
+    document.getElementById('form-fields').innerHTML=`
+      <div class="login-fg"><label class="login-fl">E-mail</label><input class="login-inp" id="f-email" type="email" name="email" autocomplete="email" placeholder="seu@email.com"></div>
+      <div class="login-fg"><label class="login-fl">Senha</label><input class="login-inp" id="f-pass" type="password" name="password" autocomplete="current-password" placeholder="••••••••"></div>`;
+  } else if(tab==='register'){
+    document.getElementById('login-sub').textContent='Crie sua conta no NEXUS';
+    sb.textContent='Criar conta';
+    document.getElementById('form-fields').innerHTML=`
+      <div class="login-fg"><label class="login-fl">Nome</label><input class="login-inp" id="f-name" type="text" name="name" autocomplete="name" placeholder="Seu nome"></div>
+      <div class="login-fg"><label class="login-fl">E-mail</label><input class="login-inp" id="f-email" type="email" name="email" autocomplete="email" placeholder="seu@email.com"></div>
+      <div class="login-fg"><label class="login-fl">Senha</label><input class="login-inp" id="f-pass" type="password" name="new-password" autocomplete="new-password" placeholder="Mínimo 6 caracteres"></div>
+      <div class="login-fg"><label class="login-fl">Pergunta secreta</label><input class="login-inp" id="f-hint-q" type="text" placeholder="Ex: Nome do seu primeiro pet?"></div>
+      <div class="login-fg"><label class="login-fl">Resposta secreta</label><input class="login-inp" id="f-hint-a" type="text" placeholder="Resposta"></div>`;
+  } else if(tab==='recover'){
+    document.getElementById('login-sub').textContent='Recuperar acesso';
+    sb.textContent='Verificar';
+    document.getElementById('tab-in').classList.remove('on');
+    document.getElementById('tab-up').classList.remove('on');
+    document.getElementById('form-fields').innerHTML=`
+      <div class="login-fg"><label class="login-fl">E-mail cadastrado</label><input class="login-inp" id="f-email" type="email" placeholder="seu@email.com"></div>
+      <div id="hint-q-wrap" style="display:none;margin-bottom:12px;padding:12px;background:rgba(0,229,255,.05);border-radius:8px;border:1px solid var(--brd2);font-size:13px;color:var(--tx2)"></div>
+      <div class="login-fg" id="hint-a-wrap" style="display:none"><label class="login-fl">Resposta secreta</label><input class="login-inp" id="f-hint-a" type="text" placeholder="Sua resposta"></div>
+      <div class="login-fg" id="new-pass-wrap" style="display:none"><label class="login-fl">Nova senha</label><input class="login-inp" id="f-newpass" type="password" placeholder="Nova senha (mín. 6)"></div>`;
+    setTimeout(()=>{
+      const fe=document.getElementById('f-email');
+      if(fe) fe.addEventListener('blur',function(){
+        const users=getUsers(),u=users.find(x=>x.email===this.value.trim());
+        const qw=document.getElementById('hint-q-wrap'),aw=document.getElementById('hint-a-wrap'),np=document.getElementById('new-pass-wrap');
+        if(u&&u.hintQ){qw.style.display='block';qw.textContent='🔑 '+u.hintQ;aw.style.display='block';np.style.display='block';}
+        else{qw.style.display='none';aw.style.display='none';np.style.display='none';}
       });
-      return res.ok;
-    }catch{ return false; }
-  }
-
-  async function updateOnlineStatus(){
-    const online = await checkOnline();
-    const pill = document.getElementById('st-label');
-    const dot  = document.querySelector('.sdot');
-    if(online){
-      if(pill){ pill.textContent='ONLINE'; }
-      if(dot){  dot.style.background='var(--gn)'; }
-    } else {
-      if(pill){ pill.textContent='OFFLINE'; }
-      if(dot){  dot.style.background='var(--am)'; }
-    }
-    return online;
-  }
-
-  // Run on load and whenever browser fires network events
-  updateOnlineStatus();
-  window.addEventListener('online',  updateOnlineStatus);
-  window.addEventListener('offline', updateOnlineStatus);
-  // Probe every 30s (not 10s — avoids hammering the server)
-  setInterval(updateOnlineStatus, 30000);
-
-  // Register Service Worker (PWA)
-  // Register Service Worker — apenas em ambiente real (não em preview)
-  if('serviceWorker' in navigator){
-    const isPreview =
-      location.hostname.includes('claudeusercontent.com') ||
-      location.hostname === 'localhost' ||
-      location.protocol === 'file:';
-
-    if(!isPreview){
-      navigator.serviceWorker.register('./sw.js', {scope: './'})
-        .then(reg => {
-          console.log('[NEXUS] SW registrado — escopo:', reg.scope);
-          // Verifica atualização a cada abertura do app
-          reg.update();
-          // Notifica quando nova versão estiver pronta
-          reg.addEventListener('updatefound', () => {
-            const newSW = reg.installing;
-            newSW.addEventListener('statechange', () => {
-              if(newSW.state === 'installed' && navigator.serviceWorker.controller){
-                console.log('[NEXUS] Nova versão disponível — aplicando...');
-              }
-            });
-          });
-        })
-        .catch(e => console.warn('[NEXUS] SW não registrado:', e.message));
-    }
-    // claudeusercontent.com / localhost / file: — SW ignorado silenciosamente
+    },50);
   }
 }
 
+function toggleRemember(){_remember=!_remember;document.getElementById('remember-chk').classList.toggle('on',_remember);}
+function showErr(msg){const el=document.getElementById('login-err');el.textContent=msg;el.classList.add('show');}
 
-// ═══════════════════════════════════════════════
-// ONBOARDING
-// ═══════════════════════════════════════════════
-function obShow(){
-  document.getElementById('ob-screen').classList.remove('hidden');
-}
-function obHide(){
-  document.getElementById('ob-screen').classList.add('hidden');
-}
-function obToggleKey(){
-  const inp = document.getElementById('ob-key-inp');
-  inp.type = inp.type === 'password' ? 'text' : 'password';
-}
-function obSubmit(){
-  const val = (document.getElementById('ob-key-inp').value||'').trim();
-  const err = document.getElementById('ob-err');
-  if(!val.startsWith('sk-ant-') && !val.startsWith('sk-')){
-    err.classList.add('show'); return;
+function handleAuth(){
+  const tab=_authTab;
+  if(tab==='login'){
+    const email=(document.getElementById('f-email')||{}).value?.trim();
+    const pass=(document.getElementById('f-pass')||{}).value;
+    if(!email||!pass){showErr('Preencha e-mail e senha.');return;}
+    const users=getUsers(),user=users.find(u=>u.email===email);
+    if(!user){showErr('E-mail não encontrado. Crie uma conta.');return;}
+    if(user.pwd!==hashPwd(pass)){showErr('Senha incorreta. Tente novamente.');return;}
+    doLogin(user,false);
+  } else if(tab==='register'){
+    const name=(document.getElementById('f-name')||{}).value?.trim();
+    const email=(document.getElementById('f-email')||{}).value?.trim();
+    const pass=(document.getElementById('f-pass')||{}).value;
+    const hQ=(document.getElementById('f-hint-q')||{}).value?.trim();
+    const hA=(document.getElementById('f-hint-a')||{}).value?.trim();
+    if(!name||!email||!pass){showErr('Preencha nome, e-mail e senha.');return;}
+    if(pass.length<6){showErr('Senha muito curta. Mínimo 6 caracteres.');return;}
+    const users=getUsers();
+    if(users.find(u=>u.email===email)){showErr('E-mail já cadastrado. Faça login.');return;}
+    const nu={id:Date.now(),name,email,pwd:hashPwd(pass),hintQ:hQ||'',hintA:hA?hashPwd(hA.toLowerCase()):'',createdAt:new Date().toISOString()};
+    users.push(nu);saveUsers(users);doLogin(nu,true);
+  } else if(tab==='recover'){
+    const email=(document.getElementById('f-email')||{}).value?.trim();
+    const hA=(document.getElementById('f-hint-a')||{}).value?.trim();
+    const np=(document.getElementById('f-newpass')||{}).value;
+    if(!email){showErr('Informe seu e-mail.');return;}
+    const users=getUsers(),idx=users.findIndex(u=>u.email===email);
+    if(idx===-1){showErr('E-mail não encontrado.');return;}
+    if(users[idx].hintA&&users[idx].hintA!==hashPwd(hA.toLowerCase())){showErr('Resposta incorreta.');return;}
+    if(!np||np.length<6){showErr('Nova senha: mínimo 6 caracteres.');return;}
+    users[idx].pwd=hashPwd(np);saveUsers(users);
+    showErr('');toast('Senha atualizada! Faça login.');switchTab('login');
   }
-  S.apiKey = val;
-  localStorage.setItem('nexus_api_key', val);
-  obHide();
-  toast('NEXUS ativado ✔');
-  // Remove the API key warning message if it exists
-  S.msgs = S.msgs.filter(m => !m.text?.includes('Chave de API não configurada'));
-  renderMsgs();
 }
-function obSkip(){
-  obHide();
+
+function doLogin(user,isNew){
+  _currentUser=user;
+  if(_remember) saveSession({userId:user.id,email:user.email,name:user.name});
+  S.profile.name=user.name;
+  document.getElementById('login-backdrop').classList.add('hidden');
+  const ws=document.getElementById('welcome-screen');
+  ws.classList.remove('hidden');
+  document.getElementById('welcome-av').textContent=getInits(user.name);
+  document.getElementById('welcome-greeting').textContent=getGreeting();
+  document.getElementById('welcome-name').textContent=user.name;
+  document.getElementById('welcome-msg').textContent=getWelcomeMsg(user.name,isNew);
+  setTimeout(()=>{
+    ws.classList.add('hidden');
+    document.getElementById('app').classList.remove('app-locked');
+    updateHeaderUser();
+    document.getElementById('st-pill').style.display='none';
+    document.getElementById('user-menu').style.display='block';
+    renderHUD();computeAlerts();S.msgs=[];
+    const tp=S.tasks.length?Math.round(tdone()/S.tasks.length*100):0;
+    const hp=S.habits.length?Math.round(hdone()/S.habits.length*100):0;
+    const gr=getGreeting();const grLow=gr.charAt(0)+gr.slice(1).toLowerCase();
+    pushMsg({role:'nexus',tp:'n',
+      text:`Sistema ativo. ${grLow}, **${user.name}**. ${isNew?'Conta criada com sucesso! ':''}Sua rotina está pronta.`,
+      card:{title:'RELATÓRIO DO DIA',
+        stats:[{val:`${tdone()}/${S.tasks.length}`,lbl:'Tarefas',cls:'hi'},{val:`${hdone()}/${S.habits.length}`,lbl:'Hábitos',cls:'ok'},{val:fmt(bal()),lbl:'Saldo',cls:overLim()?'wn':'hi'},{val:`${S.events.length}`,lbl:'Eventos',cls:'hi'}],
+        rows:[{label:'Tarefas',pct:tp,cls:tp>60?'g':''},{label:'Hábitos',pct:hp,cls:hp>60?'g':''},{label:S.goals[0].title.slice(0,32)+'…',pct:pct(S.goals[0])},{label:'Meta economia',pct:Math.min(100,Math.round(Math.max(0,bal())/SAVINGS_GOAL*100)),cls:'g'}]}});
+    pushMsg({role:'nexus',tp:'n',text:'Digite **/** para ver os comandos ou converse comigo diretamente.'});
+  },2200);
 }
+
+function enterGuest(){
+  _currentUser={name:'Convidado',email:'',isGuest:true};
+  S.profile.name='Convidado';
+  document.getElementById('login-backdrop').classList.add('hidden');
+  document.getElementById('app').classList.remove('app-locked');
+  document.getElementById('st-pill').style.display='none';
+  document.getElementById('user-menu').style.display='block';
+  updateHeaderUser();renderHUD();computeAlerts();S.msgs=[];
+  pushMsg({role:'nexus',tp:'n',text:'Bem-vindo, **Convidado**. Modo somente leitura — explore o NEXUS livremente. Crie uma conta para acesso completo e para salvar seus dados.'});
+}
+
+function updateHeaderUser(){
+  if(!_currentUser)return;
+  document.getElementById('header-av').textContent=getInits(_currentUser.name);
+  document.getElementById('header-name').textContent=_currentUser.name.split(' ')[0];
+}
+
+function toggleUserMenu(){document.getElementById('user-dropdown').classList.toggle('show');}
+document.addEventListener('click',e=>{
+  const um=document.getElementById('user-menu');
+  if(um&&!um.contains(e.target))document.getElementById('user-dropdown').classList.remove('show');
+});
+
+function openUserSettings(){document.getElementById('user-dropdown').classList.remove('show');goPanel('settings');}
+function switchUser(){
+  document.getElementById('user-dropdown').classList.remove('show');
+  _currentUser=null;clearSession();
+  document.getElementById('app').classList.add('app-locked');
+  document.getElementById('user-menu').style.display='none';
+  document.getElementById('st-pill').style.display='flex';
+  document.getElementById('login-backdrop').classList.remove('hidden');
+  S.msgs=[];switchTab('login');
+}
+function logout(){
+  document.getElementById('user-dropdown').classList.remove('show');
+  _currentUser=null;clearSession();
+  S.profile.name='Astronauta';
+  document.getElementById('app').classList.add('app-locked');
+  document.getElementById('user-menu').style.display='none';
+  document.getElementById('st-pill').style.display='flex';
+  document.getElementById('login-backdrop').classList.remove('hidden');
+  S.msgs=[];switchTab('login');toast('Sessão encerrada.');
+}
+
+// Guest mode intercept
+const _origSendMsg=sendMsg;
+window.sendMsg=async function(){
+  if(_currentUser&&_currentUser.isGuest){toast('Modo convidado — crie uma conta para interagir.');return;}
+  return _origSendMsg();
+};
 
 // ═══════════════════════════════════════════════
 // BOOTSTRAP
 // ═══════════════════════════════════════════════
 (function bootstrap(){
-  // Listen for app visibility changes
-  document.addEventListener('visibilitychange',()=>{
-    if(document.visibilityState==='visible'){
-      renderHUD(); computeAlerts();
-    }
-  });
-  init();
-  // Show onboarding on first access (no API key configured)
-  if(!S.apiKey){
-    setTimeout(obShow, 800);
+  document.getElementById('app').classList.add('app-locked');
+  switchTab('login');
+  const session=getSession();
+  if(session){
+    const users=getUsers();
+    const user=users.find(u=>u.id===session.userId||u.email===session.email);
+    if(user){init();doLogin(user,false);return;}
   }
+  init();
 })();
 </script>
 </body>
