@@ -587,7 +587,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--tx);font-
 // 🔑 SUA CHAVE DA API — cole aqui
 // Obtenha em: https://console.anthropic.com
 // ═══════════════════════════════════════════════
-const NEXUS_API_KEY = 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;
+const NEXUS_API_KEY = 'SUA_CHAVE_GEMINI_AQUI';
 
 // ═══════════════════════════════════════════════
 // STATE
@@ -946,28 +946,29 @@ async function sendMsg(){
     return acc;
   },[]);
   try{
-    const apiKey = NEXUS_API_KEY !== 'SUA_CHAVE_AQUI' ? NEXUS_API_KEY : '';
+    const apiKey = NEXUS_API_KEY !== 'SUA_CHAVE_GEMINI_AQUI' ? NEXUS_API_KEY : '';
     if(!apiKey){
-      pushMsg({role:'nexus',tp:'clr',text:'**Chave de API não configurada.** Edite o `index.html` e substitua `SUA_CHAVE_AQUI` pela sua chave Anthropic.'});
+      pushMsg({role:'nexus',tp:'clr',text:'**Chave de API não configurada.** Edite o `index.html` e substitua `SUA_CHAVE_GEMINI_AQUI` pela sua chave do Gemini.'});
       S.busy=false; document.getElementById('send-btn').disabled=false; renderMsgs(); return;
     }
     let sysPrompt; try{ sysPrompt=buildSys(); }catch(e){ sysPrompt=buildSysBasic(); }
-    const res=await fetch('https://api.anthropic.com/v1/messages',{
+    const res=await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,{
       method:'POST',
-      headers:{
-        'Content-Type':'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
-      },
-      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:sysPrompt,messages:[...hist,{role:'user',content:msg}]})
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        system_instruction:{parts:[{text:sysPrompt}]},
+        contents:[
+          ...hist.map(m=>({role:m.role==='assistant'?'model':'user',parts:[{text:m.content}]})),
+          {role:'user',parts:[{text:msg}]}
+        ]
+      })
     });
     if(!res.ok){
       const errData=await res.json().catch(()=>({}));
       throw new Error('API '+res.status+': '+(errData?.error?.message||res.statusText));
     }
     const data=await res.json();
-    const raw=data.content?.[0]?.text||'Falha na resposta. Tente novamente.';
+    const raw=data.candidates?.[0]?.content?.parts?.[0]?.text||'Falha na resposta. Tente novamente.';
     const{clean,acts}=parseActs(raw);
     const log=[];
     acts.forEach(a=>execAct(a,log));
@@ -976,11 +977,11 @@ async function sendMsg(){
   }catch(err){
     console.error('NEXUS erro:', err);
     const isOffline = !navigator.onLine;
-    const is401 = err?.message?.includes('401') || err?.message?.includes('authentication');
+    const is401 = err?.message?.includes('401') || err?.message?.includes('403');
     const is429 = err?.message?.includes('429');
     let msg;
     if(isOffline)       msg='**Sem conexão** — você está offline.';
-    else if(is401)      msg='**Chave inválida ou expirada.** Edite o `index.html` e substitua `NEXUS_API_KEY` por uma chave válida.';
+    else if(is401)      msg='**Chave inválida ou expirada.** Edite o `index.html` e substitua `NEXUS_API_KEY` por uma chave válida do Gemini.';
     else if(is429)      msg='**Limite de requisições** atingido. Aguarde alguns segundos.';
     else                msg='Erro ao contactar a IA: '+(err?.message||'desconhecido');
     pushMsg({role:'nexus',tp:'n',text:msg});
