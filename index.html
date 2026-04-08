@@ -585,7 +585,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--tx);font-
 <script>
 // ═══════════════════════════════════════════════
 // 🔑 SUA CHAVE DA API — cole aqui
-// Obtenha em: https://console.anthropic.com
+// Obtenha em: https://aistudio.google.com
 // ═══════════════════════════════════════════════
 const NEXUS_API_KEY = 'AIzaSyCuH9d1l8C3nR6QQFwAVkBzrD3MWhgG9Lk';
 
@@ -932,7 +932,7 @@ async function sendMsg(){
   if(slash){doSlash(slash.cmd);return;}
   pushMsg({role:'user',tp:'n',text:msg});
   S.busy=true; document.getElementById('send-btn').disabled=true; renderMsgs();
-  // Build valid Anthropic message history (must start with user, must alternate)
+  // Build valid Gemini message history (must start with user, must alternate)
   const rawHist = S.msgs.slice(-20)
     .filter(m => m.text && m.text.trim())
     .map(m => ({
